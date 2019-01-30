@@ -1,5 +1,5 @@
 <template>
-   <div>
+   <div style="margin-bottom:10px;">
         <div id="zzmb" class="zzmb" style="display:none;position:fixed;" @click="hideImg"></div>
         <div id="divconf" class="divconf" style="display:block; position:fixed; z-index: 2147483647;" @click="hideImg"></div>
         <div style="padding-top: 15px" class="ov pl15 pb15 fs14">
@@ -38,11 +38,22 @@
                 <div style="width: 80%" class="fl">
                     <div class="comments_user_name" >{{comment.commentUserName}}</div>
                     <div style="color: #3b3937; word-wrap:break-word;overflow:hidden;" class="fs13">{{comment.commentContent}}</div>
+                    <!-- ------------ -->
+                    <div class="preview_img_layer" >
+                        <!-- v-for="(items,index) in comment.previewLink" -->
+                        <div v-for="(items,index) in comment.previewLink">
+                            <div class="sub_img_layer" @click="viewSrcImg(items.threadId, index);" >
+                                <img class="preview_img" :src="items" />
+                                <!-- <img class="preview_img" src="../../assets/bg_nohouse.jpg" alt=""> -->
+                                </div>
+                        </div>
+                    </div>
+                    <!-- ------------ -->
                     <div style="color: #888;" class="fl15 fs12 pt15 fl">
                         <img style="width: 12px; " src="../../assets/wuye/icon_time_gray.png"/>&nbsp;
                         {{comment.fmtCommentDateTime}}
                     </div>
-                    <div class="pt15 fs12" style="color: #a6937c; ">
+                    <div class="pt15 fs12" style="color: #a6937c; float: right;">
                          <div class="fr" v-show="comment.isCommentOwner == 'true'">
        					        <div class="fs12 pr15" style="color: grey; text-align: right"  @click="delComment(comment,index)">删除</div>
   					    </div>   
@@ -52,32 +63,50 @@
                 <div style="width: 100%;" class="comment-lite-divider fl">&nbsp;</div>
             </div>  
         </div>    
-
-        <div id="input" class="fl" style="top:10px; background-color: white; width: 98%; text-align: center; border:1px;margin-left:2%;">
-            <textarea name="comment_content" class="comment_input inner-input "    placeholder="回复" v-model="commentContent"></textarea>
-            <div class="submit-btn ov fs14 fl" @click="saveComment" style="width:20%; color: white;">发送</div>	
-        </div>    
+        <div class="butt">
+            <div id="input" class="fl" style="top:10px; background-color: white; width: 98%; text-align: center; border:1px;margin-left:2%;">
+                <textarea name="comment_content" class="comment_input inner-input "    placeholder="回复" v-model="commentContent"></textarea>
+                <div class="submit-btn ov fs14 fl" @click="saveComment" style="width:20%; color: white;">发送</div>	
+            </div>  
+        </div>  
+        <!-- 上传图片 -->
+        <div style="overflow:hidden; margin-top:10px;">
+            <div id="pic" class="pic_frame">
+                    
+            </div>
+            <div class="pl15 pr15">
+                    <div id="add" v-on:click="addPic"   class="add-pic-bg fl pl5"></div>
+            </div>
+        </div>
    </div>
 </template>
 
 <script>
 let vm;
+let once=true;
+import wx from 'weixin-js-sdk';
 export default {
    data () {
        return {
             threadId:this.$route.query.threadId,
             thread : {},
             comments : [],
-            commentContent : '',
+            uploadPicId : '',
             thumbnailurls: [],
             commentContent:'',
+            localIdsid:'',
        };
    },
    created() {
        vm=this;
    },
    mounted() {
+        // 请求接口获取 后台返回的 微信配置项
+        // vm.common.checkRegisterStatus();
+       
+       this.wxdata() 
        this.getThread();
+      
    },
    methods: {
        getThread() {
@@ -219,29 +248,168 @@ export default {
    delComment(comment,index) {
        let url="thread/deleteComment";
         vm.receiveData.postData( vm, url,{commentId : comment.commentId,threadId: comment.threadId},'data', function(){
-               vm.comments.splice(index,1)
-               
-               if(!vm.data.success) {
-                   alert(vm.data.message==null?"发布信息保存失败，请重试！":vm.data.message);
+               if(vm.data.success) {
+                     vm.comments.splice(index,1);
+               }else {
+                    alert(vm.data.message==null?"发布信息保存失败，请重试！":vm.data.message);
                }
             })
    },
    saveComment() {
-       if(vm.commentContent==""){
+        if(vm.commentContent==""){
 				alert("回复内容不为空。");
 				return false;
-            }
+        }
+        var pic_length = $("[name='pics']").length;
+       
+        if(pic_length>0){
+            this.uploadToWechat();
+        }else{
+            this.saveThread();
+        }    
+        //限制回复 
+        if(once) {
         let url="thread/addComment";
         vm.receiveData.postData( vm, url,{commentContent : vm.commentContent,threadId:vm.threadId},'data', function(){
                if(vm.data.success){
-               vm.comments.push(vm.data.result)
-               vm.commentContent="";
+                vm.comments.push(vm.data.result)
+                    vm.commentContent="";
+                once=false;
                }else{
                    alert(vm.data.message==null?"发布信息保存失败，请重试！":vm.data.message);
                }              
             })
+        }else {
+            alert('不可回复，请从新报修')
+        }
             
-   }
+   },
+          //微信初始化
+       wxdata() {
+         let url1 = "getUrlJsSign";
+         vm.receiveData.postData(
+            vm,
+            url1,
+            {url:window.location.href.split('#')[0]},
+            'heheData',
+            function(){
+                let wd = vm.heheData.result;
+                wx.config({
+                    debug:false,
+                    appId:wd.appId,
+                    timestamp:wd.timestamp,
+                    nonceStr:wd.nonceStr,
+                    signature:wd.signature,
+                    jsApiList:['chooseImage','previewImage','uploadImage','downloadImage','getLocalImgData']
+                });
+            }
+        );
+       },
+           //上传图片
+       addPic() {
+            wx.chooseImage({
+                count: 3, // 默认9
+                sizeType: ['compressed'], // 可以指定是原图还是压缩图，默认二者都有
+                sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
+                success: function (res) {
+                    var localIds = res.localIds; // 返回选定照片的本地ID列表，localId可以作为img标签的src属性显示图片
+                     vm.localIdsid=res.localIds;
+                    // console.log(localIds);
+                    alert('已选择'+localIds.length+'张图片');
+                   var html = "";
+                   var pic_length = $("[name='pics']").length;
+                   if(pic_length+localIds.length>3){
+                       alert("所选图片超过3张。")
+                       return false;
+                   }
+                      var i=0;
+                    if(window.__wxjs_is_wkwebview) {//ios 环境
+                         function addimage(i) {
+                            //  setTimeout(function(){
+                                wx.getLocalImgData({
+                                    localId: localIds[i],
+                                    success: function (res) {                                          
+                                        var localData = res.localData;
+                                        localData = localData.replace('jgp', 'jpeg');
+                                            html = "<div name='pics' class=\"fl\" style=\"margin-right:5px;\"><img src=\""+localData+"\" style=\"height:100px;width:90px;\"/></div>"
+                                            $("#pic").append(html);
+                                        i++;  
+                                        if(i<localIds.length) {
+                                            // alert(i)
+                                            addimage(i)
+                                        }   
+                                    },
+                                    fail:function(res){
+                                        alert(res);
+                                    }
+                                }) 
+                            //  },100)  
+                         }  
+                         addimage(i); 
+                           
+                        }else {   
+                                for(var i=0;i<localIds.length;i++){
+                                    html = "<div name='pics' class=\"fl\" style=\"margin-right:5px;\"><img src=\""+localIds[i]+"\" style=\"height:100px;width:90px;\"/></div>"
+                                    $("#pic").append(html);
+                                }
+                        }
+                    if(pic_length+localIds.length >= 3){
+                        $("#add").hide();
+                    }
+                },
+                fail:function(err){
+                    alert(err)
+                }
+            }); 
+       },
+        //上传图片到微信
+       uploadToWechat (){
+            var i = 0;
+            var pics = $("[name='pics']");
+            function upload(){
+                var img = pics.eq(i).find("img");
+                var id = img.attr("src");
+                setTimeout(function(){
+                    wx.uploadImage({
+                        localId:  vm.localIdsid[i], // 需要上传的图片的本地ID，由chooseImage接口获得
+                        isShowProgressTips: 1, // 默认为1，显示进度提示
+                        success: function (res) {
+                            var serverId = res.serverId; // 返回图片的服务器端ID
+                            vm.uploadPicId+=serverId+",";
+                            i++;
+                            if(i<pics.length){
+                                upload();
+                            }else if(i==pics.length){
+                                vm.saveThread();
+                            }
+                            
+                        }
+                    })
+                },50);
+            }
+            upload();
+        },
+         saveThread:function(){
+                let url2 = "thread/addThread";
+                vm.receiveData.postData(
+                    vm,
+                    url2,
+                    {
+                        threadCategory:'2',
+                        threadTitle:'',
+                        threadContent:vm.commentContent,
+                        uploadPicId:vm.uploadPicId
+                    },
+                    'postData',
+                    function(){
+                        if(vm.postData.success) {
+                            //  alert("发布成功");
+                        }else {
+                            alert(vm.postData.message);
+                        }
+                    }
+                )
+        },
    },
   
    computed: {},
@@ -286,7 +454,7 @@ export default {
     position: relative;
 }
 .pr15 {
-    padding-right: 20px;
+    padding-right: 25px;
 }
 .pt15 {
     padding-top: 15px;
@@ -354,5 +522,34 @@ p15 {
     width: 100%;
     height: 100%;
     display: block;
+}
+.comment-item {
+    overflow: hidden;
+}
+.butt {
+     overflow: hidden;
+}
+.add-pic-bg {
+    background-image: url('../../assets/wuye/bg.png');
+    height: 100px;
+    width: 95px;
+}
+.pic_frame {
+    width: 94%;
+    margin: 0px 0% 0px 6%;
+}
+.preview_img_layer {
+    float: left;
+    width: 100%;
+}
+.sub_img_layer{
+    float:left;
+    padding-bottom:15px;
+    width: 32%;
+    margin-right: 1%;
+}
+.preview_img{
+    width: 100%;
+    height: 94px;
 }
 </style>
