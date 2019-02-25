@@ -11,9 +11,9 @@
         <div class="ov pl15 pr15">
             <!-- 图片 -->
 		<div class="" v-for="(thumbnailurl,index) in thumbnailurls" >
-                <div class="ov pb15 fs14" @click="viewSrcImg(thread.threadId,index)">
+                <div class="ov pb15 fs14" @click="viewSrcImg(thread.threadId,index,0)">
                     <img class="fl attach-picture" :src="thumbnailurl" />
-                    </div>
+                </div>
         </div>
 
         </div>
@@ -32,20 +32,20 @@
 
         <div class="comment-item p15" v-for="(comment,index) in comments">
             <div style="width: 100%; min-height: 100px; float: left; padding-left: 15px; overflow: hidden;" class="pt15" >
-                <div class="pb15 fs14 fl" style="width: 20%;">
+                <div class="pb15 fs14 fl" style="width: 15%;">
                     <img class="fl comment-reply-picture" :src="comment.commentUserHead"/>
                 </div>
-                <div style="width: 80%" class="fl">
+                <div style="width: 79%" class="fl">
                     <div class="comments_user_name" >{{comment.commentUserName}}</div>
                     <div style="color: #3b3937; word-wrap:break-word;overflow:hidden;" class="fs13">{{comment.commentContent}}</div>
                     <!-- ------------ -->
                     <div class="preview_img_layer" >
                         <!-- v-for="(items,index) in comment.previewLink" -->
-                        <div v-for="(items,index) in comment.previewLink">
-                            <div class="sub_img_layer" @click="viewSrcImg(items.threadId, index);" >
+                        <div v-for="(items,indexc) in comment.previewLink">
+                            <div class="sub_img_layer" @click="viewSrcImg(comment.commentId,indexc,1);" >
                                 <img class="preview_img" :src="items" />
                                 <!-- <img class="preview_img" src="../../assets/bg_nohouse.jpg" alt=""> -->
-                                </div>
+                            </div>
                         </div>
                     </div>
                     <!-- ------------ -->
@@ -70,20 +70,22 @@
             </div>  
         </div>  
         <!-- 上传图片 -->
-        <div style="overflow:hidden; margin-top:10px;">
+        <div id="imgdis" style="overflow:hidden; margin-top:10px;">
             <div id="pic" class="pic_frame">
-                    
+                    <!-- <div name='pics' class="fl" style="margin-right:5px;">
+                        <img src="../../assets/img/jf.png" style="height:100px;width:90px;"/>
+                    </div> -->
             </div>
             <div class="pl15 pr15">
                     <div id="add" v-on:click="addPic"   class="add-pic-bg fl pl5"></div>
             </div>
         </div>
+        
    </div>
 </template>
 
 <script>
 let vm;
-let once=true;
 import wx from 'weixin-js-sdk';
 export default {
    data () {
@@ -99,11 +101,11 @@ export default {
    },
    created() {
        vm=this;
+       // 请求接口获取 后台返回的 微信配置项
+        vm.common.checkRegisterStatus();
    },
    mounted() {
-        // 请求接口获取 后台返回的 微信配置项
-        // vm.common.checkRegisterStatus();
-       
+        
        this.wxdata() 
        this.getThread();
       
@@ -122,8 +124,12 @@ export default {
                     vm.comments = vm.thread.comments;
                     vm.thumbnailurls = vm.thread.thumbnailLink;
                     vm.updateUnreadComments();
+                    console.log(vm.comments.length)
+                    if(vm.comments.length>0) {
+                          $("#add").hide();
+                    }
                 }else {
-                       alert(vm.data.message==null?"获取信息失败，请重试！":vm.data.message);
+                    //    alert(vm.data.message==null?"获取信息失败，请重试！":vm.data.message);
                 }
             })
        },
@@ -134,11 +140,12 @@ export default {
             })
        },
        //点击图片
-       viewSrcImg(threadId,index) {
-           vm.refreshImages(threadId, index);
+       viewSrcImg(threadId,index,type) {
+           vm.refreshImages(threadId, index,type);
        },
-       refreshImages(threadId, index) {
-            let url="thread/getImgDetail/"+threadId+"/"+index;
+       refreshImages(threadId, index,type) {
+           //帖子 0   回复  1
+            let url="thread/getImgDetail/"+threadId+"/"+index+"/"+type;
             vm.receiveData.getData(vm,url,'data',function(){
                 var map = vm.data.result;
                 var url = map.imgUrl;
@@ -260,30 +267,38 @@ export default {
 				alert("回复内容不为空。");
 				return false;
         }
-        var pic_length = $("[name='pics']").length;
-       
-        if(pic_length>0){
-            this.uploadToWechat();
-        }else{
-            this.saveThread();
-        }    
-        //限制回复 
-        if(once) {
-        let url="thread/addComment";
-        vm.receiveData.postData( vm, url,{commentContent : vm.commentContent,threadId:vm.threadId},'data', function(){
-               if(vm.data.success){
-                vm.comments.push(vm.data.result)
-                    vm.commentContent="";
-                once=false;
-               }else{
-                   alert(vm.data.message==null?"发布信息保存失败，请重试！":vm.data.message);
-               }              
-            })
+         //限制回复 
+        if(vm.comments.length<1) {
+            var pic_length = $("[name='pics']").length;
+            if(pic_length>0){// 有没有图片上传
+                this.uploadToWechat();
+            }else{
+                 vm.addComment();
+            } 
         }else {
-            alert('不可回复，请从新报修')
+            alert('不可回复，请重新报修')
         }
-            
    },
+   //回复发送
+    addComment() {
+        let url="thread/addComment";
+        vm.receiveData.postData( vm, url,{
+            commentContent : vm.commentContent,
+            threadId:vm.threadId,
+            uploadPicId:vm.uploadPicId
+            },
+            'data',
+            function(){
+                if(vm.data.success){
+                    vm.comments.push(vm.data.result)
+                    vm.commentContent="";
+                    $('#imgdis').hide();
+
+                }else{
+                    alert(vm.data.message==null?"发布信息保存失败，请重试！":vm.data.message);
+                }              
+            })
+    },
           //微信初始化
        wxdata() {
          let url1 = "getUrlJsSign";
@@ -331,7 +346,7 @@ export default {
                                     success: function (res) {                                          
                                         var localData = res.localData;
                                         localData = localData.replace('jgp', 'jpeg');
-                                            html = "<div name='pics' class=\"fl\" style=\"margin-right:5px;\"><img src=\""+localData+"\" style=\"height:100px;width:90px;\"/></div>"
+                                            html = "<div name='pics' class=\"fl\" style=\"margin-right:5px;\"><img src=\""+localData+"\"  id=\""+vm.localIdsid[i]+"\"  style=\"height:100px;width:90px;\"/></div>"
                                             $("#pic").append(html);
                                         i++;  
                                         if(i<localIds.length) {
@@ -349,7 +364,7 @@ export default {
                            
                         }else {   
                                 for(var i=0;i<localIds.length;i++){
-                                    html = "<div name='pics' class=\"fl\" style=\"margin-right:5px;\"><img src=\""+localIds[i]+"\" style=\"height:100px;width:90px;\"/></div>"
+                                    html = "<div name='pics' class=\"fl\" style=\"margin-right:5px;\"><img src=\""+localIds[i]+"\" id=\""+localIds[i]+"\"  style=\"height:100px;width:90px;\"/></div>"
                                     $("#pic").append(html);
                                 }
                         }
@@ -368,10 +383,10 @@ export default {
             var pics = $("[name='pics']");
             function upload(){
                 var img = pics.eq(i).find("img");
-                var id = img.attr("src");
+                var id = img.attr("id");
                 setTimeout(function(){
                     wx.uploadImage({
-                        localId:  vm.localIdsid[i], // 需要上传的图片的本地ID，由chooseImage接口获得
+                        localId: id, // 需要上传的图片的本地ID，由chooseImage接口获得
                         isShowProgressTips: 1, // 默认为1，显示进度提示
                         success: function (res) {
                             var serverId = res.serverId; // 返回图片的服务器端ID
@@ -380,7 +395,8 @@ export default {
                             if(i<pics.length){
                                 upload();
                             }else if(i==pics.length){
-                                vm.saveThread();
+                                // vm.saveThread();
+                                 vm.addComment();
                             }
                             
                         }
@@ -389,27 +405,25 @@ export default {
             }
             upload();
         },
-         saveThread:function(){
-                let url2 = "thread/addThread";
-                vm.receiveData.postData(
-                    vm,
-                    url2,
-                    {
-                        threadCategory:'2',
-                        threadTitle:'',
-                        threadContent:vm.commentContent,
-                        uploadPicId:vm.uploadPicId
-                    },
-                    'postData',
-                    function(){
-                        if(vm.postData.success) {
-                            //  alert("发布成功");
-                        }else {
-                            alert(vm.postData.message);
-                        }
-                    }
-                )
-        },
+        //  saveThread:function(){
+            //         let url2 = "thread/addThread";
+            //         vm.receiveData.postData(
+            //             vm,
+            //             url2,
+            //             {
+            //                 threadContent:vm.commentContent,
+            //                 uploadPicId:vm.uploadPicId
+            //             },
+            //             'postData',
+            //             function(){
+            //                 if(vm.postData.success) {
+            //                     //  alert("回复成功");
+            //                 }else {
+            //                     alert(vm.postData.message);
+            //                 }
+            //             }
+            //         )
+        // },
    },
   
    computed: {},
@@ -437,6 +451,7 @@ export default {
     margin-right: 15px;
     border: 1px solid #d4cfc8;
     border-radius: 42px;
+    
 }
 .thread_user_head {
     float: left;
