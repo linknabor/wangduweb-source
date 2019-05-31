@@ -129,7 +129,7 @@
 	<div class="distribution-tip" id="distribution-tip" style="display: none;"></div>
 	<dl class="sub-nav nav-b5">
 		<dd id="buttom_home">
-			<a href="http://www.gm4life.cn/guangming/weixin/home/index.html?state=123#/">
+			<a href="https://www.gm4life.cn/guangming/weixin/home/index.html?state=123#/">
 				<div class="nav-b5-relative">
 					<img src="../assets/imgs/fuwu.png"/>
 					<span>悦服务</span>
@@ -137,7 +137,7 @@
 			</a>
 		</dd>
 		<dd id="buttom_classify">
-			<a href="http://www.gm4life.cn/yueshop/index.php?s=/wap">
+			<a href="https://www.gm4life.cn/yueshop/index.php?s=/wap">
 				<div class="nav-b5-relative">
 					<img src="../assets/imgs/shangc.png"/>
 					<span>悦商城</span>
@@ -153,7 +153,7 @@
 			</a>
 		</dd>
     	<dd id="buttom_classify">
-			<a href="http://www.gm4life.cn/yueshop/wap/member.html">
+			<a href="https://www.gm4life.cn/yueshop/wap/member.html">
 				<div class="nav-b5-relative">
 					<img src="../assets/imgs/yez.png"/>
 					<span>用户中心</span>

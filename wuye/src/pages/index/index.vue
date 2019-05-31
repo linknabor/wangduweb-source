@@ -47,7 +47,7 @@
                     </router-link>
                 </li> -->
                 <li class="jgg_li" >
-                    <a href="https://www.wenjuan.com/s/zURZr2S/?from=singlemessage&isappinstalled=0&openid=oyKMq0uGUQ_YJcUjmjwTiOq48SEI&token=16_WEOaY-O7tJzt6fkdU3kOSYGEX_olAvHJK0n9WXEx19P9mVE3a-dDeiv9p4PmpK7YmMGN2BR9bcoh_evZjVZArCte_WVXK54UGUsbw9AyhXQ&bookid=5bd6a10892beb55d2e49704c" class="link">
+                    <a href="https://www.wjx.cn/jq/40072382.aspx" class="link">
                         <div class="jgg_img">
                             <img src="../../assets/img/zx.png" alt="tt">
                         </div>
