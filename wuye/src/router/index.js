@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Index from '@/pages/index'
 import wuye from '@/pages/index/index'// 首页
+import Vote from '@/pages/index/vote'// 首页
 import Message from '@/pages/index/message'
 import Pay from '@/pages/pay/pay'//缴费页面
 import PayStop from '@/pages/pay/pay-stop'//停车缴费
@@ -41,6 +42,7 @@ const router= new Router({
         title:'资讯信息'
       }
     },
+    
     {
       path:'/pay',
       name:'pay',
@@ -61,6 +63,14 @@ const router= new Router({
       path:'/paymentquery',
       name:'paymentquery',
       component:Paymentquery
+    },
+    {
+      path:'/vote',
+      name:'vote',
+      component:Vote,
+      meta:{
+        title:''
+      }
     },
     {
       path:'/suggest',

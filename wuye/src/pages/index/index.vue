@@ -47,12 +47,12 @@
                     </router-link>
                 </li> -->
                 <li class="jgg_li" >
-                    <a href="https://www.wjx.cn/jq/40072382.aspx" class="link">
+                    <router-link to="/vote" class="link">
                         <div class="jgg_img">
                             <img src="../../assets/img/zx.png" alt="tt">
                         </div>
                         <span class="jgg-span">征询投票</span>
-                    </a>
+                    </router-link>
                 </li>
                 <li class="jgg_li">
                      <div  class="link" @click="gotoThread">
@@ -167,21 +167,11 @@ export default {
         vm = this;
     },
    mounted() {
-        // let url1 = '/initSession4Test/105';
-        // vm.receiveData.getData(vm,url1,'data1',function(){
-        //     vm.message();
-        // })
-    
-        let n1 = "GET",
-        a1 ='initSession4Test/105',
-        i1 = null,
-        e1 = function(n) {
-          console.log(JSON.stringify(n));
-          vm.message();
-        },
-        r1 = function() {     
-        };
-        this.common.invokeApi(n1, a1, i1, null, e1, r1);
+        let url1 = '/initSession4Test/105';
+        vm.receiveData.getData(vm,url1,'data1',function(){
+            vm.message();
+        })
+
 
 
        let n = "GET",
@@ -194,9 +184,8 @@ export default {
         },
         r = function() {     
         };
-        // this.common.invokeApi(n, a, i, null, e, r);
-        // this.common.initWechat(['onMenuShareTimeline','onMenuShareAppMessage']);
-     
+        this.common.invokeApi(n, a, i, null, e, r);
+        this.common.initWechat(['onMenuShareTimeline','onMenuShareAppMessage']);
    },
    methods: {
         gotoThread() {

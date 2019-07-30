@@ -58,7 +58,7 @@ export default {
         }
    },
    mounted() {
-       	// this.common.checkRegisterStatus();
+       	this.common.checkRegisterStatus();
        this.wxdata();
    },
 
