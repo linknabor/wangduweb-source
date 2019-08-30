@@ -42,13 +42,17 @@ export default {
        addtian() {
 	  	 let url = '/hexiehouse?stmtId='+ this.axiosParams.number;
   		vm.receiveData.getData(vm,url,'response',function(){
-			  if(vm.response.result== null) {
+			  if(vm.response.success) {
+				if(vm.response.result== null) {
 				  vm.data={}
 				  alert('未查询到该房屋')
 				  vm.canAddhouse=false;
+				}else {
+					vm.data = vm.response.result
+					vm.canAddhouse=true;
+				}
 			  }else {
-				  vm.data = vm.response.result
-				  vm.canAddhouse=true;
+				  alert(vm.response.message ==null?'未查询到该房屋':vm.response.message)
 			  }
   		})
        },
@@ -63,7 +67,7 @@ export default {
 	  					})
 				}
 				if(vm.res.result == null) {
-					 MessageBox.alert('添加房子成功','www.e-shequ.com').then( action =>{
+					 MessageBox.alert('添加房子失败','www.e-shequ.com').then( action =>{
 	  						vm.$router.push("/myhouse")
 	  					})
 				}
