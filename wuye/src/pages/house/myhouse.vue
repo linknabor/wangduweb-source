@@ -66,7 +66,6 @@ export default {
           },
           //添加房子
           addHouse() {
-			  	this.common.checkRegisterStatus();
               	this.$router.push("/addhouse")
           },
         //删除

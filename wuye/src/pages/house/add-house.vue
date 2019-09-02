@@ -23,9 +23,9 @@ export default {
    },
    mounted() {
 	   this.common.checkRegisterStatus();
-       let url = location.href.split('#')[0];
+     let url = location.href.split('#')[0];
     	  vm.receiveData.wxconfig(vm,wx,['scanQRCode'],url);
-   },
+  	 },
 
    components: {},
 
@@ -37,13 +37,13 @@ export default {
        //提交
        submit() {
            var reg = /^\d{18}$/
-			   if(reg.test(this.number)){//为数字即通过
-			   		vm.addtian();
+			if(reg.test(this.number)){//为数字即通过
+				vm.addtian();
 	  	 	}else{
 	  	 		MessageBox.alert('请输入正确账单号');
 	  	 	}
 	   },
-		addtian() {
+	   addtian() {
 			let url = '/hexiehouse?stmtId='+ vm.number;
 			vm.receiveData.getData(vm,url,'response',function(){
 				if(vm.response.success) {
@@ -55,9 +55,10 @@ export default {
 				}else {
 					alert(vm.response.message ==null?'未查询到该房屋':vm.response.message)
 				}
-			
+				
 			})
-		}
+       	}
+	   
    },
 
    computed: {},
