@@ -13,21 +13,30 @@
                         <h2>满意度调查</h2>
                     </li>
                     <li>
-                        <a href="https://www.wjx.cn/m/40072382.aspx">
+                        <a href="https://www.wjx.cn/jq/46690346.aspx">
                             <i></i>
-                            华都大厦管理部 业户意见征询
+                            客户意见征询表（物业服务）
                         </a>
                     </li>
-                    <li>
-                        <a href="#">
-                            
+                      <li>
+                        <a href="https://www.wjx.cn/jq/46701462.aspx">
+                            <i></i>
+                            客户意见征询表（专业公司）
                         </a>
                     </li>
-                    <li>
-                        <a href="#">
-                            
+                      <li>
+                        <a href="https://www.wjx.cn/jq/46701866.aspx">
+                            <i></i>
+                            客户意见征询表（工程公司）
                         </a>
                     </li>
+                      <li>
+                        <a href="https://www.wjx.cn/jq/46702343.aspx">
+                            <i></i>
+                            客户意见征询表（创新服务）
+                        </a>
+                    </li>
+                   
                 </ul>
            </div>
 
