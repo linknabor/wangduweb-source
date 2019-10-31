@@ -6,6 +6,7 @@ import Vote from '@/pages/index/vote'// 首页
 import Message from '@/pages/index/message'
 import Pay from '@/pages/pay/pay'//缴费页面
 import PayStop from '@/pages/pay/pay-stop'//停车缴费
+import Differpay from '@/pages/pay/differ-pay'//区分缴费
 import Paymentquery from '@/pages/paymentquery/paymentquery'//缴费查询
 import Suggest from '@/pages/suggest/suggest'//用户评论
 import Myhouse from '@/pages/house/myhouse'//绑定房子
@@ -57,6 +58,14 @@ const router= new Router({
       component:PayStop,
       meta:{
         title:'停车缴费'
+      }
+    },
+    {
+      path:'/differpay',
+      name:'differpay',
+      component:Differpay,
+      meta:{
+        title:''
       }
     },
     {

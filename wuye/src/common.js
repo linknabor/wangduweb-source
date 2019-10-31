@@ -3,7 +3,7 @@ import wx from 'weixin-js-sdk';
 var MasterConfig = function() {
     
     var t = {
-        // baseUrl:'https://test.e-shequ.com/guangming/wechat/hexie/wechat',
+        // baseUrl:'https://test.e-shequ.com/wechat/hexie/wechat/',
     
         baseUrl: "http://wuye.gm4life.cn/wangdu/wechat/hexie/wechat/",
         basePageUrl:"http://wuye.gm4life.cn/wangdu/weixin/",
@@ -12,7 +12,7 @@ var MasterConfig = function() {
 
         appId: "wxf59c6eb8ecb825ff",
         bindAppId:"wxf59c6eb8ecb825ff",
-        oauthUrl: "http://open.weixin.qq.com/connect/oauth2/authorize?",
+        oauthUrl: "http://open.weixin.qq.com/connect/oauth2/authorize?",//非静默授权和静默授权
         oauthUrlPostFix:"&response_type=code&scope=snsapi_userinfo&state=123#wechat_redirect",
         oauthUrlPostSilent:"&response_type=code&scope=snsapi_base&state=123#wechat_redirect",
           
@@ -129,7 +129,7 @@ export function dealWithAjaxData(o, e, i, r) {
         case "40001":
             reLogin();
             break;
-        case "40002":
+        case "40002"://不合法的凭证类型
             toBindLink();
             break;
         case "42032":

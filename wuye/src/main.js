@@ -45,10 +45,10 @@ var axiosInstance = axios.create({
 
   },
   baseURL: 'http://wuye.gm4life.cn/wangdu/wechat/hexie/wechat/',
-  // baseURL:'https://test.e-shequ.com/guangming/wechat/hexie/wechat',
- 
+  // baseURL:'https://test.e-shequ.com/wechat/hexie/wechat',
+  // 可以通过设置一个 `baseURL` 便于为 axios 实例的方法传递相对 URL
 
-  withCredentials:true,
+  withCredentials:true,//表示跨域请求时是否需要使用凭证
   transformResponse: [function (data) {//数据转换
     // data = JSON.stringify(data);
     return data;
@@ -77,7 +77,7 @@ axiosInstance.interceptors.request.use(
 Vue.use(VueAxios, axiosInstance);
 
 
-Vue.config.productionTip = false
+Vue.config.productionTip = false//阻止启动生产消息
 Vue.config.debug=true
 
 /* eslint-disable no-new */

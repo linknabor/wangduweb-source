@@ -13,7 +13,7 @@
     <div class="jiugongge">
             <ul>
                 <li class="jgg_li">
-                    <router-link to="/pay" class="link">
+                    <router-link to="/differpay" class="link">
                         <div class="jgg_img">
                             <img src="../../assets/img/wuye.png" alt="tt">
                         </div>
@@ -167,13 +167,7 @@ export default {
         vm = this;
     },
    mounted() {
-        let url1 = '/initSession4Test/105';
-        vm.receiveData.getData(vm,url1,'data1',function(){
-            vm.message();
-        })
-
-
-
+        
        let n = "GET",
         a = "userInfo",
         i = null,
