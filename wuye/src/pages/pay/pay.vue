@@ -1,4 +1,5 @@
 <template>
+<div id="divwuye"  @scroll="getscroll">
    <div class="main">
 	   <div id="phoneAjax" v-show="showp"> 
 			<img src="../../assets/img/c3d7f369-4a5e-4c4a-9fb9-a4b9d274c7e1.gif" style="width:40px;height:40px;vertical-align: middle;">
@@ -16,15 +17,9 @@
                     <div class="scan-icon" @click="show"></div>
                 </div>
                 <mt-button class="subBtn" size="large" @click.native="submit" >提交</mt-button>
-            <mt-loadmore 
-			  	:bottomMethod="quickloadBottom" 
-			  	:auto-fill = "false"
-			  	:bottomAllLoaded = "quickisLastPage"
-			  	ref="loadmore1"
-				@bottom-status-change="handleBottomChange"
-			  	>
+            <div id="word">
 			  		<Bill :bill-info="quickBillInfo"  @itemClick="itemClick"></Bill>
-
+           </div>
 				<div slot="bottom" class="mint-loadmore-bottom">
 					<!-- :class="{ 'is-rotate ': bottomStatus === 'drop' }" -->
 					<span v-show="bottomStatus !== 'loading'" >上拉刷新</span>
@@ -33,7 +28,7 @@
 					</span>
 				</div>	 
 
-			</mt-loadmore>
+			
             <div style="width:100%;height:0.92rem;"></div>
             <div class="btn-fixed" v-show="zhangdan">
 	    		<div class="fl select-btn" v-show="quan1" :class="{allSelected:quickAllselect}"   @click="allSelect(quickBillInfo,'quickAllselect')">全选&nbsp;</div>
@@ -49,15 +44,9 @@
             
              <!-- 物业缴费 -->
              <mt-tab-container-item id="b">
-              <mt-loadmore 
-			  	:bottomMethod="loadBottom" 
-			  	:auto-fill = "false"
-			  	:bottomAllLoaded = "bisLastPage"
-			  	ref = "loadmore2"
-				  @bottom-status-change="handleBottomChange"
-			  	>
+              <div id="word">
 			  		<Bill :bill-info="billInfo" @itemClick="itemClick"></Bill>
-
+                  </div>
 				<div slot="bottom" class="mint-loadmore-bottom">
 					<!-- :class="{ 'is-rotate ': bottomStatus === 'drop' }" -->
 					<span v-show="bottomStatus !== 'loading'" >上拉刷新</span>
@@ -65,8 +54,6 @@
 						<mt-spinner type="snake"></mt-spinner>
 					</span>
 				</div>	 
-
-			 	</mt-loadmore>
 			 	<div style="width:100%;height:0.92rem;"></div>
 		    	<div class="btn-fixed">
 		    		<div class="fl select-btn" v-show="quan2" :class="{allSelected:bAllSelect }" @click="allSelect(billInfo,'bAllSelect')">全选&nbsp;</div>
@@ -111,15 +98,10 @@
                         </select>
 			  	    </div>      
               </div>
-			<mt-loadmore 
-			  	:bottomMethod="queryLoadBottom" 
-			  	:auto-fill = "false"
-			  	:bottomAllLoaded = "queryisLastPage"
-			  	ref = "loadmore3"
-				 @bottom-status-change="handleBottomChange"
-			>
+			<div id="word">
+		
 			  	<Bill :bill-info="queryBillInfo" @itemClick="itemClick"></Bill>
-
+                </div>
 				<div slot="bottom" class="mint-loadmore-bottom">
 					<!-- :class="{ 'is-rotate ': bottomStatus === 'drop' }" -->
 					<span v-show="bottomStatus !== 'loading'" >上拉刷新</span>
@@ -128,7 +110,7 @@
 					</span>
 				</div>
 
-			</mt-loadmore>
+			
            
 			<div style="widtt:100%;height:0.92rem;"></div>
 			<div class="btn-fixed">
@@ -143,10 +125,12 @@
 			 </mt-tab-container-item>
         </mt-tab-container>
    </div>
+   </div>
 </template>
 
 <script>
 let vm;
+let isloadPage=false;
 import wx from 'weixin-js-sdk';
 import Bill from '../../components/bill.vue' 
 import { Loadmore} from 'mint-ui';
@@ -199,6 +183,8 @@ export default {
 	  	vm = this;
 	  },
    mounted() {
+	   
+   
 	     //微信配置
 		this.common.checkRegisterStatus();
 	  	let url = location.href.split('#')[0]
@@ -216,14 +202,21 @@ export default {
 			  vm.sectList = vm.sectList.result;
 			  vm.sectList.unshift({id:'0',name:'请选择'})
 			 
-	  	});
+		  });
+		 
    },
 
    components: {
        Bill
    },
+    watch: {
+    selected(newv,old){
+      isloadPage=false;
+    }
+  },
 
    methods: {
+	  
 	    handleBottomChange(status) {
 			  vm.bottomStatus= status
 		  },
@@ -238,6 +231,8 @@ export default {
 	  			return ;
 	  		}
 			// vm.showp=true;
+			 isloadPage=false; //重置加载状态
+			vm.quickAllselect = false;//重置加载状态
 	  		vm.quickBillpage = 1;
 	  		let url = "quickPayBillList/"+vm.stmtId+"/"+vm.quickBillpage+"/"+vm.params.totalCount;
 	  		vm.receiveData.getData(
@@ -258,7 +253,25 @@ export default {
 					// vm.showp=false;
 	  			}
 	  		)
-          },
+		  },
+		  //分页 
+		 getscroll(e) {
+			var st = e.srcElement.scrollTop;
+			// console.log(st);
+			var ad=window.innerHeight
+			var hd=$('#word').height();
+			// console.log(st+ad)
+			if( st+ad >=hd && !isloadPage) {
+				isloadPage=true;
+				if(vm.selected=='a'){
+					vm.quickloadBottom();
+				}else if(vm.selected=='b') {
+					vm.loadBottom();
+				}else {
+					vm.queryLoadBottom();
+				}
+			}
+       },  	
         ///点击某个选中按钮 params1:被点击按钮的下标 params2:被点击按钮所属的数组
         itemClick(index,b) {
             let len = b.length;
@@ -300,11 +313,11 @@ export default {
           },
         //快捷缴费上拉加载数据
         quickloadBottom(){
-			setTimeout(()=>{ 
+			
             //临时接收的数组
 	  		let tempArr = null;
 	  		//页码加1
-	  		vm.quickBillpage +=1;
+	  		// vm.quickBillpage +=1;
   			let url = "quickPayBillList/"+vm.stmtId+"/"+vm.quickBillpage+"/"+vm.params.totalCount;
 	  		//请求接口数据
 	  		vm.receiveData.getData(
@@ -315,22 +328,24 @@ export default {
 	  				tempArr = vm.pageData3.result.bill_info;
 	  				if( tempArr && tempArr.length > 0){
 	  					vm.quickBillInfo =vm.quickBillInfo.concat(tempArr) //快捷缴费
-	  					vm.quickAllselect = false;
+						  vm.quickAllselect = false;
+						  vm.quickBillpage += 1;
+                          isloadPage=false;
 	  				}else{
-						  vm.quickisLastPage = true;
+						//   vm.quickisLastPage = true;
 						  vm.quan1=true;
 	  				}
 	  			})
-			  this.$refs.loadmore1.onBottomLoaded();  	
-			 },1500)   
+			//   this.$refs.loadmore1.onBottomLoaded();  	
+			  
         },
         //物业下拉加载
         loadBottom() {
-			setTimeout(()=>{ 
+			
             		//临时接收的数组
   			let tempArr = null;
 	  		//页码自增 
-	  		vm.billPage += 1;
+	  		// vm.billPage += 1;
 			vm.params.currentPage = vm.billPage;
 			//请求接口数据
 			vm.receiveData.getData(
@@ -338,41 +353,46 @@ export default {
 				vm.url,
 				'pageData',
 				function(){
+					vm.billPage += 1;
 	  				tempArr = vm.pageData.result.bill_info;//物业缴费
 	  				if(tempArr && tempArr.length > 0){
 	  					
 	  					vm.billInfo =vm.billInfo.concat(tempArr) //物业缴费
-	  					vm.bAllSelect = false;
+						  vm.bAllSelect = false;
+						   isloadPage=false;
 	  				}else{
-						  vm.bisLastPage = true;
+						//   vm.bisLastPage = true;
 							vm.quan2=true;
 	  				}
 	  			},
 	  			vm.params
 	  		)
-			  this.$refs.loadmore2.onBottomLoaded(); 	
-			},1500)    
+			//   this.$refs.loadmore2.onBottomLoaded(); 	
+		
 		},
 		//查询缴费
 		queryLoadBottom() {
-			setTimeout(()=>{ 	
+			
 			let tempArr = null;
 	  		//页码加1
-	  		vm.queryBillPage += 1;
+	  		// vm.queryBillPage += 1;
 	  		vm.params.currentPage = vm.queryBillPage;
 	  		let url = 'billList';
 	  		vm.receiveData.getData(vm,url,'pageData4',function(){
+				  
 	  			tempArr = vm.pageData4.result.bill_info;
 	  			if( tempArr && tempArr.length > 0){
   					vm.queryBillInfo =vm.queryBillInfo.concat(tempArr) //快捷缴费
-  					vm.queryAllselect = false;
+					  vm.queryAllselect = false;
+					  vm.queryBillPage+=1;
+                       isloadPage=false;
 	  			}else{
-					  vm.queryisLastPage = true;
+					//   vm.queryisLastPage = true;
 					  vm.quan3=true;
 	  			}
 			},vm.params)
-			this.$refs.loadmore3.onBottomLoaded();
-		},1500)	
+			// this.$refs.loadmore3.onBottomLoaded();
+		
 		},
         //点击全选
         allSelect(arr,a) {
@@ -456,6 +476,7 @@ export default {
 			vm.queryBillInfo= [];//清空查询账单列表
     		vm.queryBillPage = 1;//页码重置
 			vm.queryisLastPage=false;//是否最后一页重置
+			isloadPage=false;//重置加载状态
 			vm.showp=true;
 			vm.queryBillList();
 		},
@@ -688,5 +709,14 @@ a{color:black}
 		font: 0.26rem/0.5rem "";
 		color: #a6937c;
 		height: 0.5rem;
-	}               
+	}  
+	#divwuye {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: auto;
+}   
+
 </style>

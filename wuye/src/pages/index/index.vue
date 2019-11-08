@@ -167,7 +167,7 @@ export default {
         vm = this;
     },
    mounted() {
-        
+      
        let n = "GET",
         a = "userInfo",
         i = null,
