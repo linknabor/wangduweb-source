@@ -70,28 +70,28 @@
              <mt-tab-container-item id="c">
               <div class="query-data">
                     <div class="input-row">
-                        小区： 
+                        <span>小区：</span>
                         <select class="virtual-input"  v-model="sect" @change="sectSelect($event)">
 							<!-- <option value="0">请选择</option> -->
                             <option v-for="item in sectList" :value="item.id"  :key="item.id">{{item.name}}</option>	
                         </select>
 			  	    </div>
                     <div class="input-row">
-                        楼宇：
+                        <span>楼宇：</span>
                         <select class="virtual-input"  v-model="build" @change="buildSelect($event)">
 							<!-- <option value="0">请选择</option> -->
                             <option  v-for="item in buildList" :value="item.id"  :key="item.id" >{{item.name}}</option>	
                         </select>
 			  	    </div>
                      <div class="input-row">
-                        门牌：
+                        <span>门牌：</span>
                         <select class="virtual-input" v-model="unit" @change="unitSelect($event)">
 							<!-- <option value="0">请选择</option> -->
                             <option   v-for="item in unitList" :value="item.id"  :key="item.id" >{{item.name}}</option>	
                         </select>
 			  	    </div>
                     <div class="input-row">
-                        室号： 
+                       <span> 室号：</span>
                         <select class="virtual-input"  v-model="house" @change="houseSelect($event)">
 							<!-- <option value="0">请选择</option> -->
                             <option   v-for="item in houseList" :value="item.id"  :key="item.id" >{{item.name}}</option>	
@@ -183,6 +183,7 @@ export default {
 	  	vm = this;
 	  },
    mounted() {
+			
 	   
    
 	     //微信配置
@@ -196,6 +197,7 @@ export default {
 			vm.pay_least_month = vm.data.result.pay_least_month;
 			vm.reduceMode = vm.data.result.reduce_mode;//减免方式
 			vm.permit_skip_pay=vm.data.result.permit_skip_pay;//判断跳跃付款 
+			vm.billPage+=1;
           },vm.params);
           //查询缴费 小区数据
 	  	vm.receiveData.getData(vm,'/getSect','sectList',function(){
@@ -246,6 +248,7 @@ export default {
 						vm.reduceMode = vm.quickData.result.reduce_mode;
 						vm.pay_least_month = vm.quickData.result.pay_least_month;
 						vm.permit_skip_pay=vm.quickData.result.permit_skip_pay;//判断跳跃付款
+						vm.quickBillpage+=1
 						
 	  				}else{
 	  					alert('未查询到数据')
@@ -447,12 +450,12 @@ export default {
 					return false;
 				}
 			}
-				// console.log(escape(pay_addr))
-				// console.log(pay_addr)
-			let str = 'http://wuye.gm4life.cn/wangdu/weixin/pay/';
-	  		let baseUrl='http://wuye.gm4life.cn/wangdu/weixin/';
-	  		let url = str +"gmpaymentdetails.html?#/?billIds="+bills+"&stmtId="+vm.stmtId+"&payAddr="+escape(pay_addr)+"&totalPrice="+vm[allPrice]+"&reduceMode="+vm.reduceMode+"&basePageUrl="+baseUrl;
-        	window.location.href = url;
+				
+			let str =this.basePageUrlpay;
+	  		let baseUrl=this.basePageUrl;
+	  		let url = str +"gmpaymentdetail.html?#/?billIds="+bills+"&stmtId="+vm.stmtId+"&payAddr="+escape(pay_addr)+"&totalPrice="+vm[allPrice]+"&reduceMode="+vm.reduceMode+"&basePageUrl="+baseUrl;
+			window.location.href = url;
+			
 		},
 		 //获取小区
         sectSelect(event) {
@@ -484,17 +487,33 @@ export default {
 		queryBillList(){
 			let url = 'billList';
 			vm.params.house_id = vm.house;
-			vm.params.currentPage = 1;
+			// vm.params.currentPage = 1;
+			vm.params.currentPage=vm.queryBillPage;
 			vm.receiveData.getData(vm,url,'queryBillInfoData',function(){
-				vm.showp=false;
-				vm.queryBillInfo = vm.queryBillInfoData.result.bill_info;
-				vm.permit_skip_pay=vm.queryBillInfoData.result.permit_skip_pay;//判断跳跃付款
-				if(vm.queryBillInfo.length==0){
-					alert("未查询到账单")
+				if(vm.queryBillInfoData.success){
+					if(vm.queryBillInfoData.result==null){
+						vm.queryBillInfo=[];
+					}
+					else{
+						vm.queryBillPage+=1;
+						vm.permit_skip_pay = vm.queryBillInfoData.result.permit_skip_pay;
+						vm.pay_least_month = vm.queryBillInfoData.result.pay_least_month; //3月份
+						vm.reduceMode = vm.queryBillInfoData.result.reduce_mode; //从新赋值减免方式
+						if(
+							 vm.queryBillInfoData.result.bill_info &&
+                      vm.queryBillInfoData.result.bill_info.length > 0
+						){
+							vm.queryBillInfo = vm.queryBillInfoData.result.bill_info;
+						}else{
+							 alert("没有搜索到账单");
+                             vm.queryBillInfo = [];
+						}
+								}
+				}else{
+				   alert("没有搜索到账单");
+				   vm.queryBillInfo=[];
 				}
-				console.log('我是减免方式:'+vm.queryBillInfoData.result.reduce_mode+'我把他赋值给'+vm.reduceMode)
-				vm.pay_least_month = vm.queryBillInfoData.result.pay_least_month;
-				vm.reduceMode=vm.queryBillInfoData.result.reduce_mode;  //从新赋值减免方式
+				vm.showp=false;
 			},vm.params)
 		},
         //定义公共获取小区数据

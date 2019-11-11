@@ -3,32 +3,20 @@ import wx from 'weixin-js-sdk';
 var MasterConfig = function() {
     
     var t = {
-        baseUrl: /127|test/.test(location.origin)?'https://test.e-shequ.com/wangdu/wechat/hexie/wechat/':
-        /uat/.test(location.origin)?'https://uat.e-shequ.com/wangdu/wechat/hexie/wechat/':
-        'http://wuye.gm4life.cn/wangdu/wechat/hexie/wechat/',
+        baseUrl:'https://test.e-shequ.com/wangdu/wechat/hexie/wechat/',
+    
+        // baseUrl: "http://wuye.gm4life.cn/wangdu/wechat/hexie/wechat/",
+        // basePageUrl:"http://wuye.gm4life.cn/wangdu/weixin/",
+        // payPageFolder:"http://wuye.gm4life.cn/pay/",
+        basePageUrl:"https://test.e-shequ.com/wangdu/weixin/",
+        payPageFolder:"https://test.e-shequ.com/pay/",
+
+            appId:"wx95f46f41ca5e570e",
+            bindAppId:"wx95f46f41ca5e570e",
+        // appId: "wxf59c6eb8ecb825ff",
+        // bindAppId:"wxf59c6eb8ecb825ff",
+
         
-        basePageUrl:/127|test/.test(location.origin)?'https://test.e-shequ.com/wangdu/weixin/':
-        /uat/.test(location.origin)?'https://uat.e-shequ.com/wangdu/weixin/':
-        'http://wuye.gm4life.cn/wangdu/weixin/',
-        
-        basePageUrlpay:/127|test/.test(location.origin)?'https://test.e-shequ.com/weixin/pay/':
-        /uat/.test(location.origin)?'https://uat.e-shequ.com/hexie/weixin/pay/':
-        'http://wuye.gm4life.cn/wangdu/weixin/pay/',
-
-        payPageFolder:/127|test/.test(location.origin)?'https://test.e-shequ.com/pay/':
-        /uat/.test(location.origin)?'https://uat.e-shequ.com/pay/':
-        'http://wuye.gm4life.cn/pay/',
-
-        appId: /127|test/.test(location.origin)?'wx95f46f41ca5e570e':
-        /uat/.test(location.origin)?'wx9ffe0a2b5a64a285':
-        'wxf59c6eb8ecb825ff',
-
-        bindAppId: /127|test/.test(location.origin)?'wx95f46f41ca5e570e':
-        /uat/.test(location.origin)?'wx9ffe0a2b5a64a285':
-        'wxf59c6eb8ecb825ff',
-
-
-
         oauthUrl: "http://open.weixin.qq.com/connect/oauth2/authorize?",//非静默授权和静默授权
         oauthUrlPostFix:"&response_type=code&scope=snsapi_userinfo&state=123#wechat_redirect",
         oauthUrlPostSilent:"&response_type=code&scope=snsapi_base&state=123#wechat_redirect",
@@ -462,4 +450,4 @@ let common = {
 checkCodeAndLogin();
 common.setTitle(MasterConfig.C("shop_name") + "悦生活");
 
-export  {common,MasterConfig,getUrlParam};
+export default common;

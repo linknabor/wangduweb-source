@@ -167,6 +167,9 @@ export default {
         vm = this;
     },
    mounted() {
+    //    let url = '/initSession4Test/79187';
+    //             vm.receiveData.getData(vm,url,'Data',function(){
+    //         });
       
        let n = "GET",
         a = "userInfo",
