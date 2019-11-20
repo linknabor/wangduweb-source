@@ -27,6 +27,7 @@ export default {
         		number: this.$route.params.number
 			},
 		canAddhouse:false,
+		flag:false
        };
    },
      created(){
@@ -51,6 +52,7 @@ export default {
 					vm.data = vm.response.result
 					vm.canAddhouse=true;
 				}
+				vm.flag=true;
 			}else {
 				alert(vm.response.message ==null?'未查询到该房屋':vm.response.message)
 			}
@@ -59,17 +61,23 @@ export default {
        },
        //绑定房子
        addHouse() {
+		if(vm.flag){  
+			let  wuye_myhouse={
+				url: /127|test/.test(location.origin)?'test.e-shequ.com':
+					/uat/.test(location.origin)?'uat.e-shequ.com':
+					'www.e-shequ.com'       //提示框网址
+			} 
            	let stmtId = this.axiosParams.number;
 	  		let url2 = '/addhexiehouse?stmtId='+stmtId+'&houseId='+this.data.mng_cell_id+'&mng_cell_id='+this.data.mng_cell_id;
 	  		vm.receiveData.postData(vm,url2,this.data,'res',function(){
 				if(vm.res.success) {
 					if(vm.res.result !== null) {
-                    MessageBox.alert('添加房子成功','www.e-shequ.com').then( action =>{
+                    MessageBox.alert('添加房子成功',wuye_myhouse.url).then( action =>{
 	  						vm.$router.push("/myhouse")
 	  					})
 					}
 					if(vm.res.result == null) {
-						MessageBox.alert('添加房子失败','www.e-shequ.com').then( action =>{
+						MessageBox.alert('添加房子失败',wuye_myhouse.url).then( action =>{
 								vm.$router.push("/myhouse")
 						})
 					}
@@ -79,6 +87,7 @@ export default {
 	  				})
 				}	
 			  })
+		}		  
        }
    },
 
