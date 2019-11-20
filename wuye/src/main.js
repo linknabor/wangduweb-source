@@ -22,8 +22,15 @@ import $ from 'jquery'
 import cookie from 'js-cookie'
 
 
-import common from './common.js'
+import {common,MasterConfig,getUrlParam} from './common.js'
+
 Vue.prototype.common = common;
+Vue.prototype.getUrlParam = getUrlParam;
+Vue.prototype.baseUrl = MasterConfig.C('baseUrl');
+Vue.prototype.basePageUrl = MasterConfig.C('basePageUrl');
+Vue.prototype.basePageUrlpay = MasterConfig.C('basePageUrlpay');
+
+
 
 import receiveData from './receiveData.js'
 Vue.prototype.receiveData = receiveData;
@@ -44,8 +51,8 @@ var axiosInstance = axios.create({
 
 
   },
-  baseURL: 'http://wuye.gm4life.cn/wangdu/wechat/hexie/wechat/',
-  // baseURL:'https://test.e-shequ.com/wechat/hexie/wechat',
+  // baseURL: 'http://wuye.gm4life.cn/wangdu/wechat/hexie/wechat/',
+  baseURL:Vue.prototype.baseUrl,
   // 可以通过设置一个 `baseURL` 便于为 axios 实例的方法传递相对 URL
 
   withCredentials:true,//表示跨域请求时是否需要使用凭证
