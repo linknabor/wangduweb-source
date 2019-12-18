@@ -462,4 +462,4 @@ let common = {
 checkCodeAndLogin();
 common.setTitle(MasterConfig.C("shop_name") + "悦生活");
 
-export  {common,MasterConfig,getUrlParam};
+export  {common,MasterConfig,getUrlParam,reLogin};

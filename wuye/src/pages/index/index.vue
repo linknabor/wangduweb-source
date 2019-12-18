@@ -13,7 +13,7 @@
     <div class="jiugongge">
             <ul>
                 <li class="jgg_li">
-                    <router-link to="/differpay" class="link">
+                    <router-link :to="{path:'/differpay',query:{'openid':this.openid}}" class="link">
                         <div class="jgg_img">
                             <img src="../../assets/img/wuye.png" alt="tt">
                         </div>
@@ -118,7 +118,10 @@
         </div>
 
     </div>     
-     <div style="width:100%;height:60px;background:white;"></div>     
+     <div style="width:100%;height:60px;background:white;"></div>    
+    <div class="zzmm" v-show="login">
+         <img src="https://www.gm4life.cn/yueshop/template/wap/default/public/images/mask_load.gif" alt="">
+    </div> 
    </div>
 </template>
 
@@ -133,6 +136,8 @@ export default {
             zixuns1:[],
             zixuns2:[],
             zixuns3:[],
+            openid:'',
+            login:true,
             userSectId:0,
               swiperOption:{
                 notNextTick:true,
@@ -167,7 +172,7 @@ export default {
         vm = this;
     },
    mounted() {
-    //    let url = '/initSession4Test/79187';
+    //    let url = '/initSession4Test/18079';
     //             vm.receiveData.getData(vm,url,'Data',function(){
     //         });
       
@@ -175,11 +180,18 @@ export default {
         a = "userInfo",
         i = null,
         e = function(n) {
-          console.log(JSON.stringify(n));
+            if(n.success&&n.result==null) {
+                vm.reLogin();
+                return
+            }
+            vm.login=false;
             vm.userSectId = n.result.sect_id;
+            vm.openid=n.result.openid;
           vm.message();
         },
-        r = function() {     
+        r = function() {   
+            vm.login=false;  
+            alert('获取用户信息失败')
         };
         this.common.invokeApi(n, a, i, null, e, r);
         this.common.initWechat(['onMenuShareTimeline','onMenuShareAppMessage']);
@@ -271,6 +283,22 @@ export default {
 </script>
 
 <style  scoped>
+.zzmm {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    z-index: 999999;
+    top: 0;
+    left: 0;
+    text-align: center;
+}
+.zzmm img {
+    text-align: center;
+    color: #000000;
+    font-size: 50px;
+    position: relative;
+    top: 50%;
+}
 .wuye{font-family: PingFangSC-Regular;width: 100%;
 height: 100%;
       background-color:#fff;font-size: 14px;text-align: center}
