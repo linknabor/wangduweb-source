@@ -22,8 +22,9 @@ import $ from 'jquery'
 import cookie from 'js-cookie'
 
 
-import {common,MasterConfig,getUrlParam} from './common.js'
+import {common,MasterConfig,getUrlParam,reLogin} from './common.js'
 
+Vue.prototype.reLogin = reLogin;
 Vue.prototype.common = common;
 Vue.prototype.getUrlParam = getUrlParam;
 Vue.prototype.baseUrl = MasterConfig.C('baseUrl');

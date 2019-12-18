@@ -98,7 +98,7 @@ export default {
         },
         //保存
         save() {
-            if(!(/^1[3-9][0-9]\d{4,8}$/.test(vm.user.tel))) {
+            if(!(/^1[3-9][0-9]\d{8}$/.test(vm.user.tel))) {
         		alert("请填写正确的手机号！");
         		return;
         	}

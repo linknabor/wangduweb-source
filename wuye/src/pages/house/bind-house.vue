@@ -27,7 +27,7 @@ export default {
         		number: this.$route.params.number
 			},
 		canAddhouse:false,
-		flag:false
+		flag:"",
        };
    },
      created(){
@@ -44,6 +44,7 @@ export default {
 	  	 let url = '/hexiehouse?stmtId='+ this.axiosParams.number;
   		vm.receiveData.getData(vm,url,'response',function(){
 			if(vm.response.success) {
+				vm.flag="1";
 				if(vm.response.result== null) {
 					vm.data={}
 					alert('未查询到该房屋')
@@ -52,7 +53,6 @@ export default {
 					vm.data = vm.response.result
 					vm.canAddhouse=true;
 				}
-				vm.flag=true;
 			}else {
 				alert(vm.response.message ==null?'未查询到该房屋':vm.response.message)
 			}
@@ -61,11 +61,14 @@ export default {
        },
        //绑定房子
        addHouse() {
-		if(vm.flag){  
+			if(vm.flag!="1"){  
+				return
+			}
+			vm.flag="";
 			let  wuye_myhouse={
 				url: /127|test/.test(location.origin)?'test.e-shequ.com':
 					/uat/.test(location.origin)?'uat.e-shequ.com':
-					'www.e-shequ.com'       //提示框网址
+					'wuye.gm4life.cn'       //提示框网址
 			} 
            	let stmtId = this.axiosParams.number;
 	  		let url2 = '/addhexiehouse?stmtId='+stmtId+'&houseId='+this.data.mng_cell_id+'&mng_cell_id='+this.data.mng_cell_id;
@@ -87,7 +90,6 @@ export default {
 	  				})
 				}	
 			  })
-		}		  
        }
    },
 
