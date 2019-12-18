@@ -98,7 +98,7 @@ export default {
         },
         //保存
         save() {
-            if(!(/^1[3-9][0-9]\d{4,8}$/.test(vm.user.tel))) {
+            if(!(/^1[3-9][0-9]\d{8}$/.test(vm.user.tel))) {
         		alert("请填写正确的手机号！");
         		return;
         	}
@@ -117,20 +117,14 @@ export default {
              vm.receiveData.postData(vm,'simpleRegister',{mobile:vm.user.tel,name:vm.user.name,yzm:vm.captcha},'res',function(){
                 if(vm.res.success) {
                         vm.common.updateUserStatus(vm.res.result);
-                              var page = "";		    	
                             var forwardPage = "";
-                            
                             if(vm.comeFrom){
                                 forwardPage = vm.comeFrom;
                             } else {
-                                forwardPage = "http://wuye.gm4life.cn/wangdu/weixin/wuye/index.html";
+                                forwardPage =vm.basePageUrl+"wuye/index.html";
                             }
-                            if (page) {
-                                location.href = page+"?comeFrom="+forwardPage;
-                            }else{
-                                alert("注册成功。");
-                                location.href = forwardPage;
-                            }
+                            alert("注册成功。");
+                            location.href = forwardPage;
                 }else {
                      vm.zzmb=false;
                     vm.isClick=false;
@@ -144,7 +138,7 @@ export default {
             if (r != null) return unescape(r[2]); return ""; //返回参数值
         },
          getComeFrom(){
-                vm.comeFrom=vm.getUrlParam("comeFrom");
+                vm.comeFrom=vm.getUrlParam("comeFrom") || vm.$route.query.comeFrom ;
             }
    },
 

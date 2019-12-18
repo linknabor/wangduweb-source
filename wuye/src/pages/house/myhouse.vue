@@ -38,17 +38,6 @@ export default {
    mounted() {
 	   	this.common.checkRegisterStatus();
 	   vm.showList()
-
-	//    let n1 = "GET",
-    //     a1 ='initSession4Test/105',
-    //     i1 = null,
-    //     e1 = function(n) {
-    //       console.log(JSON.stringify(n));
-    //       vm.message();
-    //     },
-    //     r1 = function() {     
-    //     };
-    //     this.common.invokeApi(n1, a1, i1, null, e1, r1);
    },
 
    components: {},

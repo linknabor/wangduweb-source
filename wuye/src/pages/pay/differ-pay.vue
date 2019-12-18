@@ -79,34 +79,22 @@
 <script>
 let vm;
 export default{
-            data(){
-                return{
-                    openid:'',
-                }
-            },
-            created(){
-                vm=this;
-            },
-            mounted(){
-               
-            let n = "GET",
-            a = "userInfo",
-            i = null,
-            e = function(n) {
-            console.log(JSON.stringify(n));
-                vm.openid = n.result.openid;
-            },
-            r = function() {     
-            };
-            this.common.invokeApi(n, a, i, null, e, r);
-            this.common.initWechat(['onMenuShareTimeline','onMenuShareAppMessage']);
-            this.common.checkRegisterStatus();
-            },
-            methods:{
-                wuyepay(){
-            vm.$router.push({path:'/pay'})
-                }
-            },
-           
-        }
+        data(){
+            return{
+                openid:this.$route.query.openid
+            }
+        },
+        created(){
+            vm=this;
+        },
+        mounted(){
+           	this.common.checkRegisterStatus();
+        },
+        methods:{
+            wuyepay(){
+                vm.$router.push({path:'/pay'})
+            }
+        },
+        
+    }
 </script>
