@@ -1,5 +1,6 @@
 <template>
-   <div style="margin-bottom:10px;">
+<div :class="{'content':falg }">
+   <div  id="himgs" style="margin-bottom:10px;" ref="element"  >
         <div id="zzmb" class="zzmb" style="display:none;position:fixed;" @click="hideImg"></div>
         <div id="divconf" class="divconf" style="display:block; position:fixed; z-index: 2147483647;" @click="hideImg"></div>
         <div style="padding-top: 15px" class="ov pl15 pb15 fs14">
@@ -8,15 +9,15 @@
             </div>
             <div class="thread_user_head">{{thread.userName}}</div>
         </div>
-        <div class="ov pl15 pr15">
+        <!-- <div  class="ov pl15 pr15"> -->
             <!-- 图片 -->
-		<div class="" v-for="(thumbnailurl,index) in thumbnailurls" >
-                <div class="ov pb15 fs14" @click="viewSrcImg(thread.threadId,index,0)">
-                    <img class="fl attach-picture" :src="thumbnailurl" />
+		<div class="ov pl15 pr15" v-for="(thumbnailurl,index) in thumbnailurls" >
+                <div class="fl pb15 fs14" @click="viewSrcImg(thread.threadId,index,0)">
+                    <img class="fl attach-picture" :src="thumbnailurl" @load="imaged"/>
                 </div>
         </div>
 
-        </div>
+        <!-- </div> -->
         <div class="ov pl15 pb15 fs13" style="color: #3b3937">{{thread.threadContent}}</div>
         <div class="ov pl15 pb15 fs13 fl" style="color: #a6937c; line-height: 23px">
             <img style="width: 13px; height: 13px;" src="../../assets/wuye/icon_time_gray.png"/>&nbsp;{{thread.formattedDateTime}}
@@ -63,14 +64,14 @@
                 <div style="width: 100%;" class="comment-lite-divider fl">&nbsp;</div>
             </div>  
         </div>    
-        <div class="butt">
+        <div v-show="!solve" class="butt">
             <div id="input" class="fl" style="top:10px; background-color: white; width: 98%; text-align: center; border:1px;margin-left:2%;">
-                <textarea name="comment_content" class="comment_input inner-input "    placeholder="回复" v-model="commentContent"></textarea>
+                <textarea @blur="fixScroll" name="comment_content" class="comment_input inner-input "    placeholder="回复" v-model="commentContent"></textarea>
                 <div class="submit-btn ov fs14 fl" @click="saveComment" style="width:20%; color: white;">发送</div>	
             </div>  
         </div>  
         <!-- 上传图片 -->
-        <div id="imgdis" style="overflow:hidden; margin-top:10px;">
+        <div v-show="!solve" id="imgdis" style="overflow:hidden; padding-top:10px">
             <div id="pic" class="pic_frame">
                     <!-- <div name='pics' class="fl" style="margin-right:5px;">
                         <img src="../../assets/img/jf.png" style="height:100px;width:90px;"/>
@@ -80,8 +81,12 @@
                     <div id="add" v-on:click="addPic"   class="add-pic-bg fl pl5"></div>
             </div>
         </div>
-        
+        <div style="width:100%;height:1.6rem;"></div>
    </div>
+        <div class="bottoms " @click="Getsolve()" v-show="isOriginHei" >
+            已解决
+        </div>
+</div>   
 </template>
 
 <script>
@@ -97,20 +102,60 @@ export default {
             thumbnailurls: [],
             commentContent:'',
             localIdsid:'',
+            solve:'',//是否解决
+            isOriginHei: true,//底部按钮顶起问题
+            screenHeight: document.documentElement.clientHeight,//当前屏幕高度        
+            originHeight: document.documentElement.clientHeight,//当前屏幕高度 
+            pageHeight:'',//当前页面高度
+            falg:false
        };
    },
    created() {
        vm=this;
        // 请求接口获取 后台返回的 微信配置项
         vm.common.checkRegisterStatus();
+
    },
    mounted() {
-        
-       this.wxdata() 
+       this.wxdata(); 
        this.getThread();
-      
+       window.onresize = function() {//底部按钮顶起问题
+            return (function(){
+                vm.screenHeight = document.documentElement.clientHeight;
+            })()
+       } 
    },
+   updated(){
+        vm.pageHeight = vm.$refs.element.offsetHeight;
+        // console.log(333,vm.pageHeight)
+   },
+   watch:{
+        screenHeight (val) {//底部按钮顶起问题
+            if(this.originHeight > val + 100) {        //加100为了兼容华为的返回键
+                this.isOriginHei = false;
+            }else{
+                this.isOriginHei = true;
+            }
+        },
+        pageHeight(vaw,van){
+            if(vm.pageHeight > vm.originHeight){
+                vm.pageHeight=vaw; 
+                vm.falg=true;
+            }else {
+                vm.falg=false; 
+            }
+        },
+    },
    methods: {
+       imaged(){
+           vm.pageHeight = vm.$refs.element.offsetHeight;
+            if(vm.pageHeight > vm.originHeight) {
+                vm.falg=true;
+            }else {
+                vm.falg=false;
+            }
+        //    console.log(897,vm.pageHeight)
+       },
        getThread() {
            let url= "thread/getThreadByThreadId";
            vm.receiveData.postData( vm, url,
@@ -121,22 +166,18 @@ export default {
             function(){
                 if(vm.data.success) {
                     vm.thread = vm.data.result;
+                    vm.solve=vm.thread.solved;
                     vm.comments = vm.thread.comments;
                     vm.thumbnailurls = vm.thread.thumbnailLink;
                     vm.updateUnreadComments();
-                    console.log(vm.comments.length)
-                    if(vm.comments.length>0) {
-                          $("#add").hide();
-                    }
                 }else {
-                    //    alert(vm.data.message==null?"获取信息失败，请重试！":vm.data.message);
+                       alert(vm.data.message==null?"获取信息失败，请重试！":vm.data.message);
                 }
             })
        },
        updateUnreadComments() {
            let url="thread/updateUnreadComment/"+vm.thread.userId+"/"+vm.thread.threadId;
            vm.receiveData.postData( vm, url,{},'data', function(){
-                console.log(JSON.stringify(vm.data));
             })
        },
        //点击图片
@@ -262,25 +303,32 @@ export default {
                }
             })
    },
+   //ios中留白问题
+   fixScroll() {
+        let u = navigator.userAgent;
+        let isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); //ios终端
+        if (isiOS) {
+          window.scrollTo(0,0);
+        }
+   },
    saveComment() {
         if(vm.commentContent==""){
 				alert("回复内容不为空。");
 				return false;
         }
-         //限制回复 
-        if(vm.comments.length<1) {
+         //已解决限制回复 
+        if(!vm.solve) {
             var pic_length = $("[name='pics']").length;
             if(pic_length>0){// 有没有图片上传
                 this.uploadToWechat();
             }else{
-                 vm.addComment();
+                vm.addComment();
             } 
-        }else {
-            alert('不可回复，请重新报修')
         }
    },
    //回复发送
     addComment() {
+        $("#zzmb").show();
         let url="thread/addComment";
         vm.receiveData.postData( vm, url,{
             commentContent : vm.commentContent,
@@ -290,14 +338,33 @@ export default {
             'data',
             function(){
                 if(vm.data.success){
+                    $("#zzmb").hide();
                     vm.comments.push(vm.data.result)
                     vm.commentContent="";
-                    $('#imgdis').hide();
+                    vm.uploadPicId="";
+                    // $('#imgdis').hide();
+                     var pic_length = $("[name='pics']").length;
+                     if(pic_length>2){
+                         $("#add").show();
+                     }
+                     $('#pic').empty()
 
                 }else{
                     alert(vm.data.message==null?"发布信息保存失败，请重试！":vm.data.message);
                 }              
             })
+    },
+    //已解决
+    Getsolve(){
+        let urls = '/thread/finish?threadId='+vm.threadId;
+        vm.receiveData.postData(vm,urls,{threadId:vm.threadId},'res',function(){
+            if(vm.res.success) {
+                vm.solve=vm.res.result.solved;
+                alert("已解决，感谢您的反馈");
+            }else {
+                alert(vm.data.message==null?"请求错误":vm.data.message);
+            }
+        });
     },
           //微信初始化
        wxdata() {
@@ -329,7 +396,6 @@ export default {
                 success: function (res) {
                     var localIds = res.localIds; // 返回选定照片的本地ID列表，localId可以作为img标签的src属性显示图片
                      vm.localIdsid=res.localIds;
-                    // console.log(localIds);
                     alert('已选择'+localIds.length+'张图片');
                    var html = "";
                    var pic_length = $("[name='pics']").length;
@@ -381,6 +447,7 @@ export default {
        uploadToWechat (){
             var i = 0;
             var pics = $("[name='pics']");
+            vm.uploadPicId="";
             function upload(){
                 var img = pics.eq(i).find("img");
                 var id = img.attr("id");
@@ -395,7 +462,6 @@ export default {
                             if(i<pics.length){
                                 upload();
                             }else if(i==pics.length){
-                                // vm.saveThread();
                                  vm.addComment();
                             }
                             
@@ -404,26 +470,7 @@ export default {
                 },50);
             }
             upload();
-        },
-        //  saveThread:function(){
-            //         let url2 = "thread/addThread";
-            //         vm.receiveData.postData(
-            //             vm,
-            //             url2,
-            //             {
-            //                 threadContent:vm.commentContent,
-            //                 uploadPicId:vm.uploadPicId
-            //             },
-            //             'postData',
-            //             function(){
-            //                 if(vm.postData.success) {
-            //                     //  alert("回复成功");
-            //                 }else {
-            //                     alert(vm.postData.message);
-            //                 }
-            //             }
-            //         )
-        // },
+        }
    },
   
    computed: {},
@@ -431,6 +478,9 @@ export default {
 </script>
 
 <style  scoped>
+.content{
+    position:relative;
+}
 .ov {
     overflow: hidden;
     padding: 1px;
@@ -567,4 +617,23 @@ p15 {
     width: 100%;
     height: 94px;
 }
+.bottoms {
+    position: absolute;
+    bottom:0.3rem;
+    left:10%;
+    right: 10%;
+    width: 80%;
+    background-color: #D01120;
+    height: 50px;
+    line-height: 50px;
+    color: #ffffff;
+    border:1px solid #c02c2c;
+    border-radius: 10px;
+    margin:0 auto;
+    text-align: center;
+    font-size:31px;
+    font-family: PingFangSC-Regular, sans-serif;
+    z-index:999;
+}
+
 </style>

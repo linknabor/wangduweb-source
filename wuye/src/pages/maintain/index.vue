@@ -22,7 +22,7 @@
             <div class="content_main">
                     <div id="zzmb" class="zzmb" style="display:none;position:fixed;"></div>
                     <div class="inner-input-wrap content_info">
-                        <textarea class="inner-input content_input" placeholder="填写发布信息..." v-model="threadContent"></textarea>
+                        <textarea @blur="fixScroll" class="inner-input content_input" placeholder="填写发布信息..." v-model="threadContent"></textarea>
                     </div>
                     <div>
                         <div class="content_limmit" >（限200字）</div>
@@ -53,6 +53,7 @@ export default {
             threadTitle:"",
             uploadPicId:"",
             localIdsid:'',
+            extraOpenId:window.localStorage.getItem('extraOpenId'),
        };
    },
    created() {
@@ -70,14 +71,33 @@ export default {
 	}
    },
    mounted() {
-       this.wxdata()
+       this.wxdata();
+       this.getOpenid();
    },
 
    components: {},
 
    methods: {
-       
-        
+       getOpenid(){//有openid保存没有连接新值覆盖
+        //    console.log(vm.$route.query.openId)
+           if(vm.$route.query.openId) {
+            //    console.log(window.localStorage.getItem('extraOpenId'))
+               if(window.localStorage.getItem('extraOpenId')) {
+                    window.localStorage.setItem('extraOpenId', vm.$route.query.openId);
+               }else {
+                    window.localStorage.setItem('extraOpenId', vm.$route.query.openId);
+               }
+              vm.extraOpenId=window.localStorage.getItem('extraOpenId');
+           }
+       },
+        //ios中留白问题
+        fixScroll() {
+                let u = navigator.userAgent;
+                let isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); //ios终端
+                if (isiOS) {
+                window.scrollTo(0,0);
+                }
+        },
        //微信初始化
        wxdata() {
          let url1 = "getUrlJsSign";
@@ -183,7 +203,7 @@ export default {
             }
             upload();
         },
-        saveThread:function(){
+       saveThread:function(){
                 let url2 = "thread/addThread";
                 vm.receiveData.postData(
                     vm,
@@ -192,7 +212,8 @@ export default {
                         threadCategory:vm.threadCategory,
                         threadTitle:vm.threadTitle,
                         threadContent:vm.threadContent,
-                        uploadPicId:vm.uploadPicId
+                        uploadPicId:vm.uploadPicId,
+                        extraOpenId:vm.extraOpenId
                     },
                     'postData',
                     function(){

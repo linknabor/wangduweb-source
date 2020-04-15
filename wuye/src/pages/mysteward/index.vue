@@ -57,7 +57,7 @@
                 <div v-for="(previewurl,index) in thread.previewLink">
                     <div class="sub_img_layer" @click="viewSrcImg(thread.threadId, index);" >
                         <img class="preview_img" :src="previewurl" />
-                        </div>
+                    </div>
                 </div>
 		    </div>
 
@@ -99,7 +99,7 @@ export default {
         // 请求接口获取 后台返回的 微信配置项
         vm.common.checkRegisterStatus();
        vm.getThreadList();
-  
+       vm.getOpenid();
        window.addEventListener('scroll',vm.getscroll);
 
    },
@@ -112,7 +112,17 @@ export default {
     },
 
    methods: {
-
+        getOpenid(){//有openid保存没有连接新值覆盖
+            // console.log(vm.$route.query.openId)
+           if(vm.$route.query.openId) {
+                // console.log(window.localStorage.getItem('extraOpenId'))
+               if(window.localStorage.getItem('extraOpenId')) {
+                    window.localStorage.setItem('extraOpenId', vm.$route.query.openId);
+               }else {
+                    window.localStorage.setItem('extraOpenId', vm.$route.query.openId);
+               }
+           }
+       }, 
        //初始数据
        getThreadList() {
            vm.page=0;

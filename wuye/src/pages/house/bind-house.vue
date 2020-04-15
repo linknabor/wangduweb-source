@@ -64,7 +64,6 @@ export default {
 			if(vm.flag!="1"){  
 				return
 			}
-			vm.flag="";
 			let  wuye_myhouse={
 				url: /127|test/.test(location.origin)?'test.e-shequ.com':
 					/uat/.test(location.origin)?'uat.e-shequ.com':
