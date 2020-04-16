@@ -282,7 +282,7 @@ export default {
 			}else {
 				hd=$('#word2').height();
 			}
-			console.log(st+ad,hd)
+			// console.log(st+ad,hd)
 			if( st+ad >=hd && !isloadPage) {
 				isloadPage=true;
 				if(vm.selected=='a'){
@@ -482,45 +482,6 @@ export default {
 	  		//取反
 	  		vm[a] = !vm[a];
 		},
-		//账单没选完拦截用户
-		Flagpay(list){
-		//   abc(arr) {
-			// 	  var flag = true;
-			// 	  var checkDate = "";
-			// 	arr.forEach(element => {
-			// 		if(!element.selected) {
-			// 			flag = false;
-			// 			break;
-			// 	  	}else {
-			// 			checkDate = element.cycle_start_date.substring(0,6);
-			// 		  }
-			// 	  });
-
-			// 	  if(flag) {
-			// 		// 请求第二页
-			// 		arr = vm
-			// 		var flag1 = true;
-			// 		arr.forEach(element => {
-			// 			if(element.cycle_start_date <= checkDate) {
-			// 				if(!element.selected) {
-			// 					flag1 = false;
-			// 					alert("还有未加载的账单，请下拉加载");
-			// 					return;
-			// 				}
-			// 			}
-			// 		}
-
-			// 		if(flag1) {
-
-			// 		}
-
-			// 	  } else {
-			// 		  //走原来的逻辑
-			// 	  }
-				
-		//   },
-
-		},
 		pays(list,allPrice,allselect){
 			let selectedArr = [];
 	  		if(vm[allselect] == true){
@@ -568,15 +529,39 @@ export default {
 		 	if(vm.bill_restriction_times > 0) {//倍数账单未选完拦截用户
 				var arr = vm[list];
 				var flag=true;
-				arr.forEach(element => {
-					if(element.cycle_start_date.substring(0,6) <= vm.datetime) { //小于截止日期未选完提示用户
-						if(!element.selected) {
+				var cull_shu = 0;//记数
+				for(var i = 0;i < arr.length;i++){
+					if(arr[i].cycle_start_date.substring(0,6) <= vm.datetime){
+						if(!arr[i].selected) {
 							flag=false;
 							alert("还有未加载的账单");
 							return;
+						}else {
+							cull_shu++;//记数
 						}
 					}
-				})
+				}
+				if(cull_shu%vm.bill_restriction_times != 0){ 
+						if(vm.selected=='a'){
+							if(!vm.quan1) {
+								flag=false;
+								alert("还有未加载的账单");	
+								return;
+							}
+						}else if(vm.selected=='b') {
+							if(!vm.quan2) {
+								flag=false;
+								alert("还有未加载的账单");	
+								return;
+							}	
+						}else {
+							if(!vm.quan3) {
+								flag=false;
+								alert("还有未加载的账单");	
+								return;
+							}
+						}
+				}
 				if(flag) {
 					vm.pays(list,allPrice,allselect);
 					console.log(vm.datetime);
