@@ -4,6 +4,7 @@ import Index from '@/pages/index'
 import wuye from '@/pages/index/index'// 首页
 import Vote from '@/pages/index/vote'// 首页
 import Message from '@/pages/index/message'
+import Blank from '@/pages/index/blank'// 空白页
 import Pay from '@/pages/pay/pay'//缴费页面
 import PayStop from '@/pages/pay/pay-stop'//停车缴费
 import Differpay from '@/pages/pay/differ-pay'//区分缴费
@@ -16,6 +17,7 @@ import Mysteward from '@/pages/mysteward/index' // 业主意见
 import threadDetail from '@/pages/mysteward/threadDetail'
 import Maintain  from '@/pages/maintain/index'  //在线维修
 import Register from '@/pages/register/register'// 注册
+
 
 Vue.use(Router)
 
@@ -34,6 +36,11 @@ const router= new Router({
       path:'',
       name:'wuye',
       component:wuye
+    },
+    {
+      path:'/blank',
+      name:'blank',
+      component:Blank
     },
     {
       path:'/message',
