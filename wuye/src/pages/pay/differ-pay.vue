@@ -88,7 +88,9 @@ export default{
             vm=this;
         },
         mounted(){
-           	// this.common.checkRegisterStatus();
+
+           	this.common.checkRegisterStatus();
+
         },
         methods:{
             wuyepay(){
