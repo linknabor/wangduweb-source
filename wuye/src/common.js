@@ -3,7 +3,7 @@ import wx from 'weixin-js-sdk';
 var MasterConfig = function() {
     
     var t = {
-        baseUrl: /127|test/.test(location.origin)?'https://test.e-shequ.com/wangdu/wechat/hexie/wechat/':
+        baseUrl: /127|test|localhost/.test(location.origin)?'https://test.e-shequ.com/wangdu/wechat/hexie/wechat/':
         /uat/.test(location.origin)?'https://uat.e-shequ.com/wangdu/wechat/hexie/wechat/':
         'http://wuye.gm4life.cn/wangdu/wechat/hexie/wechat/',
         
@@ -288,7 +288,7 @@ function isRegisted(){
 
 function toRegisterAndBack(){
     var n = location.origin + common.removeParamFromUrl(["from", "bind", "code", "share_id", "isappinstalled", "state", "m", "c", "a"]);
-    location.href=MasterConfig.C('basePageUrl')+"wuye/index.html?#/register?comeFrom="+encodeURIComponent(n);
+    location.href=MasterConfig.C('basePageUrl')+"wuye/index.html?#/register?comeFrom="+encodeURIComponent(n)+common.addParamHsah();
 }
 
 let AJAXFlag = !0;
@@ -459,7 +459,7 @@ let common = {
 };
 
 // checkBindAndBind();
-checkCodeAndLogin();
+// checkCodeAndLogin();
 common.setTitle(MasterConfig.C("shop_name") + "悦生活");
 
 export  {common,MasterConfig,getUrlParam,reLogin};

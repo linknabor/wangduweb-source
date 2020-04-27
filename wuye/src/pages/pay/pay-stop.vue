@@ -175,8 +175,8 @@ export default {
 					}
                 }
                 
-           	let str = 'http://wuye.gm4life.cn/wangdu/weixin/pay/';
-	  		let baseUrl='http://wuye.gm4life.cn/wangdu/weixin/';
+           	let str = this.basePageUrlpay;
+	  		let baseUrl=this.basePageUrl;
 	  		let url = str +"gmpaymentdetails.html?#/?billIds="+bills+"&stmtId="+vm.stmtId+"&payAddr="+escape(pay_addr)+"&totalPrice="+vm[allPrice]+"&reduceMode="+vm.reduceMode+"&basePageUrl="+baseUrl;
         	window.location.href = url  
        }

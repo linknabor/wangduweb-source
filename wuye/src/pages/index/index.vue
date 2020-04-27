@@ -168,14 +168,14 @@ export default {
                  ],          
        };
    },
-     created(){
+    created(){
         vm = this;
     },
    mounted() {
     //    let url = '/initSession4Test/18079';
     //             vm.receiveData.getData(vm,url,'Data',function(){
     //         });
-      
+
        let n = "GET",
         a = "userInfo",
         i = null,
@@ -195,8 +195,15 @@ export default {
         };
         this.common.invokeApi(n, a, i, null, e, r);
         this.common.initWechat(['onMenuShareTimeline','onMenuShareAppMessage']);
+        vm.getOpenid();
    },
    methods: {
+        getOpenid(){//获取openid保存
+            var openid=vm.getUrlParam('openid');
+                if(openid){
+                    window.localStorage.setItem('extraOpenId',openid);
+                }
+            },
         gotoThread() {
             if(vm.userSectId ==0 || vm.userSectId=='' || vm.userSectId==null)
         	{

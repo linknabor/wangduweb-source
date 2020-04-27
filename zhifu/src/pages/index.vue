@@ -168,9 +168,9 @@ export default {
 			needInvoice:function(){
 				if(this.needInvoice == 'yes'){
 					vm.invoice_title_type='01'
-					console.log('yes')
+					// console.log('yes')
 				}else{
-					console.log('no')
+					// console.log('no')
 					vm.invoice_title_type=''
 				}
 			},
@@ -178,17 +178,16 @@ export default {
 		},
    mounted() {
 	//    this.initSession4Test();
-
 		this.common.checkRegisterStatus();
-			
-       this.getBillDetail();
+	   this.getBillRestriction();		
 	   this.updateCouponStatus();
    },
 
    methods: {
 
        	initSession4Test(){
-            let url = 'http://wuye.gm4life.cn/wangdu/wechat/hexie/wechat/initSession4Test/105';
+			// let url = 'http://wuye.gm4life.cn/wangdu/wechat/hexie/wechat/initSession4Test/105';
+			let url = 'initSession4Test/18079';
                 vm.receiveData.getData(vm,url,'Data',function(){
             });
         },
@@ -205,13 +204,28 @@ export default {
 			  }
 			  let url = `${paths[0]}#${paths[1]}`
 			  if (window.location.href !== url) {
-			  	console.log(url);
 			    window.location.href = url
 			  }
 			},
+		getBillRestriction(){
+			let url = "checkBillRestriction";
+           let params={
+					billId :vm.routeParams.billIds,
+	  				stmtId :vm.routeParams.stmtId
+	  			}
+		   vm.receiveData.getData(vm,url,'data',function(){
+			   	if(vm.data.success) {
+       				vm.getBillDetail();
+				}else {
+					alert(vm.data.message==null?"获取数据失败！":vm.data.message);
+					return;
+				}
+		   },params)
+		},	
        //获取账单
        getBillDetail() {
-           let url = "http://wuye.gm4life.cn/wangdu/wechat/hexie/wechat/getBillDetail";
+		//    let url = "http://wuye.gm4life.cn/wangdu/wechat/hexie/wechat/getBillDetail";
+		   let url = "getBillDetail";
            let params={
 	  				billId :vm.routeParams.billIds,
 	  				stmtId :vm.routeParams.stmtId
@@ -246,10 +260,12 @@ export default {
        },
        //获取优惠券
        updateCouponStatus() {
-           let url2 = 'http://wuye.gm4life.cn/wangdu/wechat/hexie/wechat/updateCouponStatus';
+		//    let url2 = 'http://wuye.gm4life.cn/wangdu/wechat/hexie/wechat/updateCouponStatus';
+		   let url2 = 'updateCouponStatus';
 	  		vm.receiveData.getData(vm,url2,'temp',function(){	  			
 	  		    //更新后 获取优惠劵
-	  			let url3 = 'http://wuye.gm4life.cn/wangdu/wechat/hexie/wechat/getCouponsPayWuYe';
+				  // let url3 = 'http://wuye.gm4life.cn/wangdu/wechat/hexie/wechat/getCouponsPayWuYe';
+				  let url3 = 'getCouponsPayWuYe';
 	  			vm.receiveData.getData(vm,url3,'uptonDatas',function(){
 	  				vm.uptonData = vm.uptonDatas.result;
 	  				vm.uptonNumber = vm.uptonDatas.result.length;
@@ -343,8 +359,8 @@ export default {
 					}
 				};
                 $('.box-bg').css("display",'block');
-            let url = "http://wuye.gm4life.cn/wangdu/wechat/hexie/wechat/getPrePayInfo?billId="+vm.routeParams.billIds+"&stmtId="+vm.routeParams.stmtId+"&couponUnit="+vm.upronAmountNumber+"&couponNum=1&couponId="+vm.couponId+"&mianBill="+vm.mianBill+"&mianAmt="+vm.mianAmt+"&reduceAmt="+vm.reduceAmt+"&invoice_title_type="+this.invoice_title_type+"&credit_code="+this.credit_code+"&invoice_title="+this.invoice_title;
-            
+            // let url = "http://wuye.gm4life.cn/wangdu/wechat/hexie/wechat/getPrePayInfo?billId="+vm.routeParams.billIds+"&stmtId="+vm.routeParams.stmtId+"&couponUnit="+vm.upronAmountNumber+"&couponNum=1&couponId="+vm.couponId+"&mianBill="+vm.mianBill+"&mianAmt="+vm.mianAmt+"&reduceAmt="+vm.reduceAmt+"&invoice_title_type="+this.invoice_title_type+"&credit_code="+this.credit_code+"&invoice_title="+this.invoice_title;
+            let url = "getPrePayInfo?billId="+vm.routeParams.billIds+"&stmtId="+vm.routeParams.stmtId+"&couponUnit="+vm.upronAmountNumber+"&couponNum=1&couponId="+vm.couponId+"&mianBill="+vm.mianBill+"&mianAmt="+vm.mianAmt+"&reduceAmt="+vm.reduceAmt+"&invoice_title_type="+this.invoice_title_type+"&credit_code="+this.credit_code+"&invoice_title="+this.invoice_title;
             this.axios.post(url,{},).then((res) => {
 				let wd = JSON.parse(res.data);
 				
@@ -371,7 +387,8 @@ export default {
                             "paySign":wd.result.paysign,
                             
                               success: function (res) {
-                                      let reqUrl = "http://wuye.gm4life.cn/wangdu/wechat/hexie/wechat/noticePayed?billId="+vm.routeParams.billIds+"&stmtId="+vm.routeParams.stmtId+"&tradeWaterId="+wd.result.trade_water_id+"&packageId="+wd.result.packageId+"&feePrice="+vm.routeParams.totalPrice+"&bind_switch="+vm.bind_switch;
+									//   let reqUrl = "http://wuye.gm4life.cn/wangdu/wechat/hexie/wechat/noticePayed?billId="+vm.routeParams.billIds+"&stmtId="+vm.routeParams.stmtId+"&tradeWaterId="+wd.result.trade_water_id+"&packageId="+wd.result.packageId+"&feePrice="+vm.routeParams.totalPrice+"&bind_switch="+vm.bind_switch;
+									 let reqUrl = "noticePayed?billId="+vm.routeParams.billIds+"&stmtId="+vm.routeParams.stmtId+"&tradeWaterId="+wd.result.trade_water_id+"&packageId="+wd.result.packageId+"&feePrice="+vm.routeParams.totalPrice+"&bind_switch="+vm.bind_switch;
                                       if(vm.uptonAmount != "未使用"){
                                             reqUrl += "&couponId="+vm.couponId;
                                         }

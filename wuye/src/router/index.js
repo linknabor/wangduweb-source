@@ -17,6 +17,7 @@ import threadDetail from '@/pages/mysteward/threadDetail'
 import Maintain  from '@/pages/maintain/index'  //在线维修
 import Register from '@/pages/register/register'// 注册
 
+
 Vue.use(Router)
 
 const router= new Router({

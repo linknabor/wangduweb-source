@@ -80,51 +80,6 @@
 <template>
 	<div class="index">
 		<router-view class="contetn" ></router-view>
-    <!-- <footer class="footer">
-      <ul>
-        <li >
-          <a href="http://www.gm4life.cn/guangming/weixin/home/index.html?state=123#/">
-            <div class="icon">
-              <div class="icon-box">
-                <img src="../assets/imgs/fuwu.png"  alt="tt">
-              </div>             
-            </div>
-            <span class="foot-span">悦服务</span>
-          </a>
-        </li>
-        <li >
-          <a href="http://www.gm4life.cn/yueshop/index.php?s=/wap">
-            <div class="icon">
-              <div class="icon-box">
-                <img src="../assets/imgs/shangc.png"  alt="tt">
-              </div>              
-            </div>
-            <span class="foot-span">悦商城</span>
-          </a>
-        </li>
-        <li >
-          <a href="http://wuye.gm4life.cn/wangdu/weixin/wuye/index.html?state=123#/">
-            <div class="icon">
-              <div class="icon-box">
-                <img src="../assets/imgs/shequ-check.png"  alt="tt">
-              </div>              
-            </div>
-            <span class="foot-span">悦社区</span>
-          </a>
-        </li>
-        <li >
-          <a href="http://www.gm4life.cn/yueshop/wap/member.html">
-            <div class="icon">
-              <div class="icon-box">
-                <img src="../assets/imgs/yez.png"  alt="tt">
-              </div>             
-            </div>
-            <span class="foot-span">用户中心</span>
-          </a>
-        </li>
-      </ul>
-    </footer>			 -->
-
     <div class="fixed bottom">
 	<div class="distribution-tip" id="distribution-tip" style="display: none;"></div>
 	<dl class="sub-nav nav-b5">
@@ -135,6 +90,12 @@
 					<span>悦服务</span>
 				</div>
 			</a>
+            <!-- <a href="https://test.e-shequ.com/guangming/weixin/home/index.html#/">
+				<div class="nav-b5-relative">
+					<img src="../assets/imgs/fuwu.png"/>
+					<span>悦服务</span>
+				</div>
+			</a> -->
 		</dd>
 		<dd id="buttom_classify">
 			<a href="https://www.gm4life.cn/yueshop/index.php?s=/wap">

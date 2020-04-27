@@ -1,9 +1,8 @@
 <template>
 <div :class="{addhouses:dataArr.length==0}">
    <div class="myhouse">
-       <div class="nohouse" v-if="dataArr.length == 0">
-		   <!-- <img   src="../../assets/bg_nohouse.jpg" alt=""> -->
-	   </div>
+	   <div id="login" v-show="login"></div> 
+       <div class="nohouse" v-if="dataArr.length == 0"></div>
        <ul class="house-list" v-else>
            <li v-for="(i,index) in dataArr">
 				<p>
@@ -29,7 +28,8 @@ let vm;
 export default {
    data () {
        return {
-           dataArr:[]
+		   dataArr:[],
+		   login:true,
        };
    },
    created() {
@@ -50,7 +50,8 @@ export default {
 			  		vm.dataArr = vm.data.result		  			
 		  		}else{
 		  			vm.dataArr = []
-		  		}
+				}
+				vm.login=false; 
 		  	})
           },
           //添加房子
@@ -129,5 +130,14 @@ export default {
 		width: 25px;
 		height: 25px;
 		margin-top: 5px;
+	}
+	#login {
+		background: rgba(0,0,0,0.5);
+		left: 0;
+		right: 0;
+		top: 0;
+		bottom: 0;
+		position: fixed; 
+		z-index:10000000;
 	}
 </style>
