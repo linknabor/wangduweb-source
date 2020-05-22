@@ -63,14 +63,13 @@
                      </div>
                 </li>
                 <li class="jgg_li" >
-                    <router-link :to="{path:'/mysteward',query:{category:'2'}}" class="link">
+                    <div class="link" @click="tempBlock">
                         <div class="jgg_img">
                             <img src="../../assets/img/yj.png" alt="tt">
                         </div>
                         <span class="jgg-span">业主意见</span>
-                    </router-link>
+                    </div>
                 </li>
-
             </ul>
     </div>
     <div style="width:100%;height:7px;"></div>
@@ -198,6 +197,11 @@ export default {
         vm.getOpenid();
    },
    methods: {
+
+        tempBlock(){    //两会期间暂时屏蔽该功能
+            alert("功能调整中，请敬请期待。");
+            reutrn;
+        },
         getOpenid(){//获取openid保存
             var openid=vm.getUrlParam('openid');
                 if(openid){
