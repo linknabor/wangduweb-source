@@ -180,20 +180,22 @@ export default {
         i = null,
         e = function(n) {
             if(n.success&&n.result==null) {
+                // alert(n.success,n.result)
                 vm.reLogin();
                 return
+            }else {
+                vm.login=false;
+                vm.userSectId = n.result.sect_id;
+                vm.openid=n.result.openid;
+                vm.message();
+                vm.common.initWechat(['onMenuShareTimeline','onMenuShareAppMessage']);
             }
-            vm.login=false;
-            vm.userSectId = n.result.sect_id;
-            vm.openid=n.result.openid;
-          vm.message();
         },
         r = function() {   
             vm.login=false;  
             alert('获取用户信息失败')
         };
         this.common.invokeApi(n, a, i, null, e, r);
-        this.common.initWechat(['onMenuShareTimeline','onMenuShareAppMessage']);
         vm.getOpenid();
    },
    methods: {
