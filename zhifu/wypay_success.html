@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>合协社区</title>
-    <script src="../static//jquery.js"></script>
+    <script src="../static/jquery.js"></script>
 </head>
 <style>
     *{
@@ -81,12 +81,12 @@
     function query() {
         let checkclient = IsWeixinOrAlipay();
         if ("Alipay" === checkclient) { //支付宝
-            $('#imgs').attr("src", "./static/images/common/alipay.png");
+            $('#imgs').attr("src", "../static/images/common/alipay.png");
             $('#invoice').addClass('alipay');
             $('#text').addClass('color');
 
         } else if ("WeiXin" === checkclient) { //微信
-            $('#imgs').attr("src", "./static/images/common/wehcatpay.png")
+            $('#imgs').attr("src", "../static/images/common/wehcatpay.png")
         } else {
             // alert("请用微信或支付宝扫码支付");
             return false;
@@ -117,7 +117,7 @@
 <body>
     <div>
         <div class="succeed" >
-            <img id="imgs" src="./static/images/common/wehcatpay.png" alt="">
+            <img id="imgs" src="../static/images/common/wehcatpay.png" alt="">
             <div id="text" class="succ_test">支付成功</div>
         </div>
         <div class="bottom">
