@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Index from '@/pages/index'
 import Success from '@/pages/success'
+import Personnel from '@/pages/personnel'
 Vue.use(Router)
 
 const router= new Router({
@@ -21,6 +22,14 @@ const router= new Router({
       meta:{
         title:'缴费成功'
       }
+    },
+    {
+      path:'/personnel',
+      name:'personnel',
+      component:Personnel,
+      meta:{
+        title:''
+      },
     }
   ]
 });

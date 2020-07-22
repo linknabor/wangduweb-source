@@ -10,7 +10,7 @@ var MasterConfig = function() {
         /uat/.test(location.origin)?'https://uat.e-shequ.com/wangdu/weixin/':
         'http://wuye.gm4life.cn/wangdu/weixin/',
 
-        basePageUrlpay:/127|test/.test(location.origin)?'https://test.e-shequ.com/weixin/pay/':
+        basePageUrlpay:/127|test/.test(location.origin)?'https://test.e-shequ.com/wangdu/weixin/':
         /uat/.test(location.origin)?'https://uat.e-shequ.com/hexie/weixin/pay/':
         'http://wuye.gm4life.cn/wangdu/weixin/pay/',
 

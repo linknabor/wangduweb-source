@@ -127,7 +127,8 @@
 <script>
 let vm;
 import { MessageBox } from 'mint-ui';
-import {swiper,swiperSlide} from 'vue-awesome-swiper'
+import {swiper,swiperSlide} from 'vue-awesome-swiper';
+import cookie from 'js-cookie';
 export default {
     name:'index',
    data () {
@@ -187,6 +188,7 @@ export default {
                 vm.login=false;
                 vm.userSectId = n.result.sect_id;
                 vm.openid=n.result.openid;
+                cookie.set('qrcodeOperator',n.result.qrcodeOperator);
                 vm.message();
                 vm.common.initWechat(['onMenuShareTimeline','onMenuShareAppMessage']);
             }

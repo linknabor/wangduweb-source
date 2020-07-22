@@ -5,8 +5,8 @@
 			<img src="../../assets/img/c3d7f369-4a5e-4c4a-9fb9-a4b9d274c7e1.gif" style="width:40px;height:40px;vertical-align: middle;">
 		</div>
         <mt-navbar id="navBar"  v-model="selected">
+			<mt-tab-item id="c" v-show="!(qrcodeOperator == 'false')">查询缴费</mt-tab-item>
 	    	<mt-tab-item id="b">物业缴费</mt-tab-item>
-			<mt-tab-item id="c">查询缴费</mt-tab-item>
 	    	<mt-tab-item id="a">账单缴费</mt-tab-item>
 	    </mt-navbar>
         <mt-tab-container v-model="selected">
@@ -135,6 +135,7 @@ import wx from 'weixin-js-sdk';
 import Bill from '../../components/bill.vue' 
 import { Loadmore} from 'mint-ui';
 import { Spinner } from 'mint-ui';
+import cookie from 'js-cookie';
 export default {
    data () {
        return {
@@ -180,10 +181,12 @@ export default {
 		   showp:false,
 		   zhangdan:false,
 		   bottomStatus:'',
+		   qrcodeOperator:'',//是否显示查询缴费
        };
    },
     created(){
-	  	vm = this;
+		vm = this;
+		  
 	  },
    mounted() {
 			
@@ -191,10 +194,9 @@ export default {
 		this.common.checkRegisterStatus();
 	  	let url = location.href.split('#')[0]
 		vm.receiveData.wxconfig(vm,wx,['scanQRCode'],url);
-		
 		vm.query();
+		vm.qrcode();
 
-		 
    },
    components: {
        Bill
@@ -209,6 +211,24 @@ export default {
   },
 
    methods: {
+	   qrcode(){
+		   var qrcode = cookie.get('qrcodeOperator');
+		   vm.qrcodeOperator = qrcode;
+		   if(qrcode == "" || qrcode == null) {
+			    let n = "GET",
+				a = "userInfo",
+				i = null,
+				e = function(n) {
+					cookie.set('qrcodeOperator',n.result.qrcodeOperator);
+					vm.qrcodeOperator = cookie.get('qrcodeOperator');
+					
+				},
+				 r = function() {   
+					alert('获取用户信息失败')
+				};
+       			vm.common.invokeApi(n, a, i, null, e, r);
+		   }
+	   },
 	   	query(){
 			vm.showp=true;
 			//请求物业缴费首屏数据
@@ -515,7 +535,7 @@ export default {
 				
 			let str =this.basePageUrlpay;
 	  		let baseUrl=this.basePageUrl;
-	  		let url = str +"gmpaymentdetails.html?#/?billIds="+bills+"&stmtId="+vm.stmtId+"&payAddr="+escape(pay_addr)+"&totalPrice="+vm[allPrice]+"&reduceMode="+vm.reduceMode+"&basePageUrl="+baseUrl;
+	  		let url = str +"gmpaymentdetails.html?#/?billIds="+bills+"&stmtId="+vm.stmtId+"&payAddr="+escape(pay_addr)+"&totalPrice="+vm[allPrice]+"&reduceMode="+vm.reduceMode+'&selected='+vm.selected+"&basePageUrl="+baseUrl;
 			window.location.href = url;
 			console.log(url)	
 		},
