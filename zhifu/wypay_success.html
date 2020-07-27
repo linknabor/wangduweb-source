@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>合协社区</title>
+    <script src="../static/jquery.js"></script>
+</head>
+<style>
+    *{
+        margin: 0;
+        padding: 0;
+        font-family: Arial, "微软雅黑", "宋体", sans-serif;
+    }
+    .succeed {
+        width: 100px;
+        height: 100px;
+        margin: 100px auto;
+    } 
+    img {
+        width: 100%;
+    }
+    .succ_test {
+        font-size: 20px;
+        font-weight: 600;
+        color:#30AC30;
+        text-align: center;
+        
+    }
+    .bottom {
+        text-align: center;
+        font-size: 20px;
+    }
+    .button {
+        width: 220px;
+        height: 40px;
+        text-align: center;
+        line-height: 40px;
+        border:2px solid #30AC30;
+        border-radius: 5px;
+        margin: 0 auto;
+        margin-bottom: 10px;
+        color: #30AC30;
+    }
+    .bottom .alipay {
+        border:2px solid #079BFF;
+        color: #079BFF;
+    }
+    .color {	
+	 color: #079BFF;
+	}
+</style>
+
+<script>    
+    var baseurl = /127|test/.test(location.origin)?'https://test.e-shequ.com/weixin/':
+        /uat/.test(location.origin)?'https://uat.e-shequ.com/weixin/':
+        'https://www.e-shequ.cn/weixin/';
+
+    var trade_water_id;
+    //获取参数方法
+    function getUrlParam(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
+        var r = window.location.search.substr(1).match(reg);  //匹配目标参数
+        if (r != null) return unescape(r[2]); return ""; //返回参数值
+    }
+    function IsWeixinOrAlipay() {
+        var ua = window.navigator.userAgent.toLowerCase();
+        //判断是不是微信
+        if (ua.match(/MicroMessenger/i) == 'micromessenger') {
+            return "WeiXin";
+        }
+        //判断是不是支付宝
+        if (ua.match(/AlipayClient/i) == 'alipayclient') {
+            return "Alipay";
+        }
+        //哪个都不是
+        return "false";
+    }
+
+    //不同环境不同图片
+    function query() {
+        let checkclient = IsWeixinOrAlipay();
+        if ("Alipay" === checkclient) { //支付宝
+            $('#imgs').attr("src", "../static/images/common/alipay.png");
+            $('#invoice').addClass('alipay');
+            $('#text').addClass('color');
+
+        } else if ("WeiXin" === checkclient) { //微信
+            $('#imgs').attr("src", "../static/images/common/wehcatpay.png")
+        } else {
+            // alert("请用微信或支付宝扫码支付");
+            return false;
+        }
+    }
+    //开具发票
+    function invoice() {
+
+        location.href=baseurl+'wuye/invoice.html?trade_water_id='+trade_water_id;
+    }
+    $(function () {
+        query();
+        trade_water_id = getUrlParam('trade_water_id')
+        var sect_name = getUrlParam('sect_name');
+            sect_name = decodeURI(sect_name);
+        var fee_name = getUrlParam('fee_name');
+            fee_name = decodeURI(fee_name);
+        var tran_amt = getUrlParam('tran_amt');
+            tran_amt=Number(tran_amt).toFixed(2)
+        let name = sect_name+'-  '+fee_name;
+            // console.log(sect_name+'-'+fee_name+'-'+tran_amt)
+        $('#name').text(name);
+        $('#money').text(tran_amt);   
+        
+    })
+</script>
+
+<body>
+    <div>
+        <div class="succeed" >
+            <img id="imgs" src="../static/images/common/wehcatpay.png" alt="">
+            <div id="text" class="succ_test">支付成功</div>
+        </div>
+        <div class="bottom">
+            <div id="name" style="margin-bottom:40px"></div>
+            <div id="money" style="margin-bottom:80px; font-size: 40px;"></div>
+            <div id="invoice" class="button" onclick="invoice()">开具发票</div>
+        </div>
+    </div>
+
+
+</body>
+</html>

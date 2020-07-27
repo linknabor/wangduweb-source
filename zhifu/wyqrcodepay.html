@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport"
+        content="width=device-width,minimum-scale=1,maximum-scale=1,initial-scale=1,user-scalable=no" />
+    <meta name="referrer" content="no-referrer" />
+    <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta http-equiv="expires" content="0" />
+    <script src="https://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+    <script src="https://gw.alipayobjects.com/as/g/h5-lib/alipayjsapi/3.1.1/alipayjsapi.inc.min.js"></script>
+    <script src="../static/jquery.js"></script>
+    <script src="../static/js/base64.js"></script>
+    <title></title>
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0,minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script>
+        var baseurl = /127|test/.test(location.origin)?'https://test.e-shequ.com/wangdu/weixin/':
+        /uat/.test(location.origin)?'https://uat.e-shequ.com/wangdu/weixin/':
+        'http://wuye.gm4life.cn/wangdu/weixin/';
+
+        var requrl = baseurl + "pay/wyqrcodepay.html" + window.location.search;
+
+        var wechat_url = /127|test|localhost/.test(location.origin)?'https://test.e-shequ.com/wangdu/wechat/hexie/wechat/':
+        /uat/.test(location.origin)?'https://uat.e-shequ.com/wangdu/wechat/hexie/wechat/':
+        'http://wuye.gm4life.cn/wangdu/wechat/hexie/wechat/';
+
+        var appId = "";
+        
+        function IsWeixinOrAlipay() {
+            var ua = window.navigator.userAgent.toLowerCase();
+            //判断是不是微信
+            if (ua.match(/MicroMessenger/i) == 'micromessenger') {
+                return "WeiXin";
+            }
+            //判断是不是支付宝
+            if (ua.match(/AlipayClient/i) == 'alipayclient') {
+                return "Alipay";
+            }
+            //哪个都不是
+            return "false";
+        }
+
+        function query() {
+            let checkclient = IsWeixinOrAlipay();
+            if ("Alipay" === checkclient) { //支付宝
+                alipayAuthorize();
+            } else if ("WeiXin" === checkclient) { //微信
+                weixinAuthorize();
+            } else {
+                alert("请用微信或支付宝扫码支付");
+                return false;
+            }
+        }
+        //支付宝授权
+        function alipayAuthorize() {
+            appId = /127|test/.test(location.origin) ? '2021001163621308' :
+                /uat/.test(location.origin) ? '2021001163651280' : '2021001181693485';
+
+            let authorize_url = "https://openauth.alipay.com/oauth2/publicAppAuthorize.htm?app_id=APPID&scope=SCOPE&redirect_uri=ENCODED_URL";
+            //
+            let o = gerAuthcode().auth_code;
+            if (o === undefined) {
+                let authorize = authorize_url.replace("APPID", appId).replace("SCOPE", "auth_base").replace("ENCODED_URL", encodeURIComponent(requrl));
+                // console.log("author:" + authorize);
+                location.href = authorize;
+            } else {
+                let u_id = getParam(window.location.search, "user_id");
+                if (u_id == null) { //说明没拿过user_id
+                    let url = wechat_url + "/authorizeAlipay/" + o;
+                    $.ajax({
+                        type: 'post',
+                        url: url,
+                        dataType: "json",
+                        data: {},
+                        success: function (res) {
+                            if (res.success) {
+                                let user_id = res.result.userid;
+                                console.log("user_id:" + user_id);
+                                location.href = baseurl + "pay/wyqrcodepay.html" + window.location.search + "&user_id=" + user_id;
+                            } else {
+                                alert('请刷新重试');
+                            }
+                        },
+                        error: function (err) {
+                            console.log(err)
+                        }
+                    })
+                }
+            }
+        }
+        //微信授权
+        function weixinAuthorize() {
+
+            appId = /127|test/.test(location.origin)?'wx95f46f41ca5e570e':
+              /uat/.test(location.origin)?'wx9ffe0a2b5a64a285' : 'wxf59c6eb8ecb825ff';
+
+            let authorize_url ="http://open.weixin.qq.com/connect/oauth2/authorize?appid=APPID&redirect_uri=REDIRECT_URI&response_type=code&scope=snsapi_base&state=123#wechat_redirect";
+            let o = gercode().code;
+            console.log("o:" + o);
+
+            if (o === undefined) {
+                let authorize = authorize_url.replace("APPID", appId).replace("REDIRECT_URI", encodeURIComponent(requrl));
+                console.log("author:" + authorize);
+                location.href = authorize;
+            } else {
+                let oid = getParam(window.location.search, "openid");
+                if (oid == null) { //说明没拿过openid
+                    let url = wechat_url + "/authorize/" + o + "/" + appId;
+                    $.ajax({
+                        type: 'post',
+                        url: url,
+                        dataType: "json",
+                        data: {},
+                        success: function (res) {
+                            if (res.success) {
+                                let openid = res.result.openid;
+                                console.log("openid:" + openid);
+                                location.href = baseurl + "pay/wyqrcodepay.html" + window.location.search + "&openid=" + openid;
+                            } else {
+                                alert('请刷新重试');
+                            }
+                        },
+                        error: function (err) {
+                            console.log(err)
+                        }
+                    })
+                }
+            }
+        }
+        //获取微信code
+        function gercode() {
+            var e = location.search,
+                o = {};
+
+            if ("" === e || void 0 === e) return o;
+            e = e.substr(1).split("&");
+            for (let n in e) {
+                let t = e[n].split("=");
+                o[t[0]] = t[1]
+            }
+            return o.from && delete o.code,o
+        }
+        //获取支付宝code
+        function gerAuthcode() {
+            var e = location.search,
+                o = {};
+
+            if ("" === e || void 0 === e) return o;
+            e = e.substr(1).split("&");
+            for (let n in e) {
+                let t = e[n].split("=");
+                o[t[0]] = t[1]
+            }
+            return o.from && delete o.auth_code,o
+        }
+        
+        //截取URL上参数
+        function getParam(url, name) {
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
+            var r = url.match(reg);  //匹配目标参数
+            if (r != null) {
+                return unescape(r[2]);
+            } else {
+                return null;
+            }
+        }
+
+        var billId = "";
+        var stmtId = "";
+        var payFeeType = "";
+        var payType = "";
+        var reduceAmt = "";
+        var reductionAmt = "";
+        var ruleType = "";
+        var openid = "";
+        var user_id = "";
+        var sect_name = "";
+        var fee_name = "";
+        var tran_amt = ""
+        var appid = "";
+
+        //获取支付参数
+        function getUrlParam() {
+            let theRequest = {};
+            let paramUrl = window.location.search.substr(1);
+            console.log(paramUrl);
+            let param = getParam(paramUrl, "param");
+            console.log(param);
+
+            param = strAnsi2Unicode(decode64(param));
+            console.log(param);
+
+            let params = param.split("&");
+            for(var i = 0; i < params.length; i ++) {
+                theRequest[params[i].split("=")[0]]=unescape(params[i].split("=")[1]);
+            }
+            console.log(theRequest);
+
+            billId = theRequest.bill_id;
+            stmtId = theRequest.stmt_id;
+            payFeeType = theRequest.pay_fee_type;
+            payType = theRequest.pay_type;
+            reduceAmt = theRequest.reduceAmt;
+            reductionAmt = theRequest.reduction_amt;   
+            ruleType = theRequest.rule_type;
+            sect_name = theRequest.sect_name;
+            fee_name = theRequest.fee_name;
+            tran_amt = theRequest.tran_amt;
+            appid = theRequest.appid;
+
+
+            openid = getParam(paramUrl, "openid");
+            user_id = getParam(paramUrl, "user_id");
+        }
+        //页面加载完执行
+        window.onload = function(){
+            getUrlParam();
+            if(openid != undefined || user_id != undefined) {
+                 pay();
+            }
+        };
+        
+        //支付
+        function pay() { 
+            let checkclient = IsWeixinOrAlipay();
+            if("false" === checkclient) {
+                alert("请使用微信或支付宝扫码支付");
+                return;
+            }
+            let url;
+            let list = {};
+            list.isQrcode = "1";
+            list.billId = billId;
+            list.stmtId = stmtId;
+            list.payFeeType = payFeeType; //01管理费，02停车费
+            list.payType = payType;           
+            list.reduceAmt = reduceAmt;
+            list.ruleType = ruleType; //减免规则类型
+            list.reductionAmt = reductionAmt;//减免金额
+            list.appid = appid;
+
+            if("Alipay" === checkclient) {
+                list.openid = user_id;
+            } else if("WeiXin" === checkclient) {
+                list.openid = openid;
+            }
+            
+            $.ajax({
+                type : "POST",
+                contentType: "application/json;charset=UTF-8",
+                url : wechat_url + '/getPrePayInfo4Qrcode',
+                data : JSON.stringify(list),
+                dataType : "json",
+                success : function(n) {
+                    if("Alipay" === checkclient) {
+                        if(false == n.success) {
+                            alert(n.message);
+                            return;
+                        }
+                        let tranNo = n.result.packageId;
+                        ap.tradePay({
+                            tradeNO: tranNo
+                        }, function(res){
+                            if(res.resultCode === "9000") {
+                               location.href= baseurl+"pay/wypay_success.html?trade_water_id="+n.result.trade_water_id+"&sect_name="+encodeURI(encodeURI(sect_name))+"&fee_name="+encodeURI(encodeURI(fee_name))+"&tran_amt="+tran_amt;
+                            }
+                            if(res.resultCode =="6001") {
+                                ap.call("closeWebview");
+							}
+
+                        });
+                    } else if("WeiXin" === checkclient) {
+                        if(false == n.success) {
+                            alert(n.message);
+                            return;
+                        }
+                        wx.config({
+                            appId: n.result.appid, // 必填，公众号的唯一标识
+                            timestamp: n.result.timestamp, // 必填，生成签名的时间戳
+                            nonceStr: n.result.noncestr, // 必填，生成签名的随机串
+                            signature: n.result.paysign,// 必填，签名，见附录1
+                            jsApiList: ['chooseWXPay'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+                        });
+                        wx.chooseWXPay({
+                            "timestamp":n.result.timestamp,
+                            "nonceStr":n.result.noncestr,
+                            "package":n.result.package,
+                            "signType":n.result.signtype,
+                            "paySign":n.result.paysign,
+                            "appId":n.result.appid,
+                            success: function (res) {
+                                // wx.closeWindow();
+                                location.href= baseurl+"pay/wypay_success.html?trade_water_id="+n.result.trade_water_id+"&sect_name="+encodeURI(encodeURI(sect_name))+"&fee_name="+encodeURI(encodeURI(fee_name))+"&tran_amt="+tran_amt;
+                            }
+                        });
+                    }
+                },
+                error : function(e){
+                    console.log(e.status);
+                    console.log(e.responseText);
+                    alert(e.message == null?"支付请求失败，请稍后重试！":e.message);
+                }
+            });
+        }
+
+        //比onload先执行
+        $(function () {
+            query(); //判断环境授权执行
+
+        });
+    
+
+    </script>
+</head>
+
+<body>
+
+</body>
+
+</html>

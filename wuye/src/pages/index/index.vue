@@ -127,7 +127,8 @@
 <script>
 let vm;
 import { MessageBox } from 'mint-ui';
-import {swiper,swiperSlide} from 'vue-awesome-swiper'
+import {swiper,swiperSlide} from 'vue-awesome-swiper';
+import cookie from 'js-cookie';
 export default {
     name:'index',
    data () {
@@ -180,25 +181,28 @@ export default {
         i = null,
         e = function(n) {
             if(n.success&&n.result==null) {
+                // alert(n.success,n.result)
                 vm.reLogin();
                 return
+            }else {
+                vm.login=false;
+                vm.userSectId = n.result.sect_id;
+                vm.openid=n.result.openid;
+                cookie.set('qrcodeOperator',n.result.qrcodeOperator);
+                vm.message();
+                vm.common.initWechat(['onMenuShareTimeline','onMenuShareAppMessage']);
             }
-            vm.login=false;
-            vm.userSectId = n.result.sect_id;
-            vm.openid=n.result.openid;
-          vm.message();
         },
         r = function() {   
             vm.login=false;  
             alert('获取用户信息失败')
         };
         this.common.invokeApi(n, a, i, null, e, r);
-        this.common.initWechat(['onMenuShareTimeline','onMenuShareAppMessage']);
         vm.getOpenid();
    },
    methods: {
-
         tempBlock(){    //两会期间暂时屏蔽该功能
+            // path:'/mysteward',query:{category:'2'
             alert("功能调整中，请敬请期待。");
             reutrn;
         },

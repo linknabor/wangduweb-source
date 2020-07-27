@@ -139,7 +139,6 @@ let receiveData = {
                     vm.loadingShow = false;
                 }
                 if(err.message){
-                   //  alert(12345+"上山打老虎")
                    // alert(err.message) ;
                 }              
                 console.log('fail', err);

@@ -11,7 +11,7 @@ var MasterConfig = function() {
         /uat/.test(location.origin)?'https://uat.e-shequ.com/wangdu/weixin/':
         'http://wuye.gm4life.cn/wangdu/weixin/',
         
-        basePageUrlpay:/127|test/.test(location.origin)?'https://test.e-shequ.com/weixin/pay/':
+        basePageUrlpay:/127|test/.test(location.origin)?'https://test.e-shequ.com/wangdu/weixin/pay/':
         /uat/.test(location.origin)?'https://uat.e-shequ.com/hexie/weixin/pay/':
         'http://wuye.gm4life.cn/wangdu/weixin/pay/',
 
@@ -48,76 +48,7 @@ var MasterConfig = function() {
     },
     e
 } ();
-var Config = function() {
-    var t = {
-        download: {
-        },
-        pullload_text: {
-            load_text: "正在玩命的加载...",
-            no_orders: "没有更多的订单了...",
-            no_tuan_orders: "没有更多的团订单了...",
-            no_goods: "更多新品正在陆续推出..."
-        },
-        user_info: {
-            avatar: "http://wuye.gm4life.cn/weixin/static/images/logo.jpg",
-            nickname: "游客",
-            levelname: "普通会员"
-        },
-        user_level:{
-            0 : "普通会员",
-            1 : "钻石会员",
-            2 : "大楼VIP"
-        },
-        coupon:{
-            seedImg:"http://wuye.gm4life.cn/weixin/static/img/banner/banner_market_shuiguo.jpg"
-        }
-    },
-    e = {};
-    return e.C = function(e) {
-        return t[e]
-    },
-    e
-} ();
 
-function showDialog(title,placeholder,content,onConfirmMsg,onCancelClick){
-    if(!placeholder) {
-        placeholder = "";
-    }
-    if(!title) {
-        title = "提交内容";
-    }
-    if(!content){
-        content = "";
-    }
-    var chatHtml =
-            "<div class='weui_mask' id='dialog_overlay'></div>                                                   "
-            +"<div class='weui_dialog'>                                                       "
-            +"  <div class='dialog_title'>"+title+"</div>                                          "
-            +"  <div class='dialog_content'>                                                  "
-            +"      <textarea class='dialog_textarea' placeholder='"+placeholder+"' id='dialog_content'>"+content+"</textarea>"
-            +"  </div>                                                                        "
-            +"  <div class='dialog_btn_bar'>                                                  "
-            +"      <div class='dialog_btn' id='dialog_cancel'>取消</div>                     "
-            +"      <div class='dialog_btn' id='dialog_confirm'>确定</div>                    "
-            +"  </div>                                                                        "
-            +"</div>                                                                          ";
-
-    $("#dialog").html('');
-    var loadHtml = "";
-    $("#dialog").html(chatHtml);
-    $("#dialog_confirm").click(function(){
-        if(onConfirmMsg){
-            onConfirmMsg($("#dialog_content").val());
-        }
-        $("#dialog").html('');
-    });
-    $("#dialog_cancel").click(function(){
-        $("#dialog").html('');
-        if(onCancelClick){
-            onCancelClick();
-        }
-    });
-}
 Date.prototype.format = function(fmt){
       var o = {
         "M+" : this.getMonth()+1,
@@ -136,6 +67,7 @@ Date.prototype.format = function(fmt){
                          (o[k]) : (("00"+ o[k]).substr((""+ o[k]).length)));
      return fmt;
 }
+// 请求状态码
 export function dealWithAjaxData(o, e, i, r) {
     if (common.log(o, e), e.success) {
         i(e);
@@ -147,7 +79,7 @@ export function dealWithAjaxData(o, e, i, r) {
             reLogin();
             break;
         case "40002"://不合法的凭证类型
-            toBindLink();
+            alert("40002");
             break;
         case "42032":
             common.wechatAuthorize();
@@ -157,25 +89,33 @@ export function dealWithAjaxData(o, e, i, r) {
             break;
     }
 }
+//没授权在授权登录
 function reLogin() {
+    setTimeout(function(){
+		console.log("waiting 1s for relogin.")
+	},500)
     setCookie("UID", "", 0),
     common.login(!0)
 }
+// 读取cookie方法
 function getCookie(e) {
     let c_start;
     let c_end;
     return document.cookie.length > 0 && (c_start = document.cookie.indexOf(e + "="), -1 != c_start) ? (c_start = c_start + e.length + 1, c_end = document.cookie.indexOf(";", c_start), -1 == c_end && (c_end = document.cookie.length), unescape(document.cookie.substring(c_start, c_end))) : ""
 }
+ //定义存储cookie方法
 function setCookie(e, o, n) {
     var t = e + "=" + o + "; ",
     i = "";
     null !== n && void 0 !== n && (i = "expires=" + new Date(1e3 * n) + "; "),
     document.cookie = t + i + "path=/"
 }
+//判断是不是微信环境
 function isWeChatBrowser() {
     var e = navigator.userAgent.toLowerCase();
     return "micromessenger" == e.match(/MicroMessenger/i) ? !0 : !1
 }
+//获取参数方法
 function getUrlParam(name) {
     var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
     var r = window.location.search.substr(1).match(reg);  //匹配目标参数
@@ -210,6 +150,7 @@ function initShareConfig(title,link,img,desc){
         });
     });
 }
+//检查微信状态  检查用户可不可用
 function checkFromShare(salePlanType,salePlanId) {
     var shareCode = getUrlParam("shareCode");
     if(shareCode!=null&&shareCode!=''){
@@ -236,18 +177,7 @@ function checkCodeAndLogin(){
         return true;
     }
 }
-function toBindLink(){
-  
-        var p = common.removeParamObject(["from","bind", "code", "share_id", "isappinstalled", "state", "m", "c", "a"]);
-        p = common.addParamObject(p,"bind","true");
-        var n = location.origin + location.pathname + common.buildUrlParamString(p)+common.addParamHsah(),
-        t = MasterConfig.C("oauthUrl");
-        var end = MasterConfig.C("oauthUrlPostFix");
-        var url = t + "appid=" + MasterConfig.C("bindAppId") + "&redirect_uri=" + encodeURIComponent(n) +end+ "#wechat_redirect";
-        console.log(url+"我走这里了");
-        location.href = url;
-    
-}
+
 function checkBindAndBind(){
     
     // console.log(1)
@@ -277,15 +207,17 @@ function checkBindAndBind(){
 //     setCookie("tel", user.tel, duration);
 //     setCookie("shareCode", user.shareCode, duration);
 // }
+//只更新地址
 function updateCurrentAddrId(addrId){
     var duration = new Date().getTime()/1000 + 3600*24*30;
     setCookie("currentAddrId", addrId, duration);
 }
+//注册没注册   根据电话判断
 function isRegisted(){
     var tel = getCookie("tel");
     return tel&&tel!='null';
 }
-
+ //没注册 跳转注册页
 function toRegisterAndBack(){
     var n = location.origin + common.removeParamFromUrl(["from", "bind", "code", "share_id", "isappinstalled", "state", "m", "c", "a"]);
     location.href=MasterConfig.C('basePageUrl')+"wuye/index.html?#/register?comeFrom="+encodeURIComponent(n)+common.addParamHsah();
@@ -347,20 +279,22 @@ let common = {
             var n = location.origin + common.removeParamFromUrl(["from","bind", "code", "share_id", "isappinstalled", "state", "m", "c", "a"])+common.addParamHsah(),
             t = MasterConfig.C("oauthUrl");
           var end = MasterConfig.C("oauthUrlPostFix");
-            location.href = t + "appid=" + MasterConfig.C("appId") + "&redirect_uri=" + encodeURIComponent(n) +end+ "#wechat_redirect"
-        } else common.alert("start api login"),
-        console.log('开始授权')
-       
-        this.invokeApi("POST", "login/" + o, null,
-        function() {
-            AJAXFlag = !1
-        },
-        function(x) {
-            console.log('我已经授权登录了')
-            common.updateUserStatus(x.result);
-            AJAXFlag = !0,
-            location.href = location.origin +common.removeParamFromUrl(["code"])+common.addParamHsah();
-        })
+            location.href = t + "appid=" + MasterConfig.C("appId") + "&redirect_uri=" + encodeURIComponent(n) +end+ "#wechat_redirect";
+        } else {common.alert("start api login"),
+            console.log('开始授权')
+            this.invokeApi("POST", "login/" + o, null,
+            function() {
+                AJAXFlag = !1
+            },
+            function(x) {
+                console.log('我已经授权登录了')
+                common.updateUserStatus(x.result);
+                AJAXFlag = !0,
+                location.href = location.origin +common.removeParamFromUrl(["code"])+common.addParamHsah();
+            },function(e){
+                alert(e.message)
+            })
+        }   
     },
     /**变更才需要重设置*/
     updateUserStatus:function(user) {
@@ -370,6 +304,7 @@ let common = {
         setCookie("tel", user.tel, duration);
         setCookie("shareCode", user.shareCode, duration);
     },
+     //入口程序 检查状态
     checkRegisterStatus:function(){
         if(!getCookie("UID")){
             common.login();/**不应该出现*/
@@ -382,9 +317,11 @@ let common = {
             }
         return true;
     },
+    //需不需要注册
     hasRegister:function(){
         return getCookie("UID")&&isRegisted();
     },
+    //结合微信授权  
     _GET: function() {
         // console.log(2)
         var e = location.search,
@@ -406,16 +343,8 @@ let common = {
         o = 0; e > o; o++) 
         console.log(arguments[o])
     },
-    // log: function() {
-    //     for (var e = arguments.length,
-    //     o = 0; e > o; o++) {}
-    // },
     alert: function(e) {
         "" === getCookie("DevDebug") ? console.log(e) : alert(e)
-    },
-    errorTip: function() {
-        var e = '<div class="wrapper"></div><div class="box"><p>请重新刷新</p></div>';
-        $("body").prepend(e)
     },
     setTitle: function(e) {
         $("title").text(e)
@@ -430,7 +359,7 @@ let common = {
         for (var n in e) delete o[e[n]];
         return o;
     },
-    // 添加
+    // 添加 获取哈希值
     addParamHsah:function() {
         // console.log(location.hash)
         return  location.hash 

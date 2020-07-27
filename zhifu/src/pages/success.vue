@@ -73,14 +73,14 @@ export default {
                }
            )
         }else {
-             location.href="http://wuye.gm4life.cn/wangdu/weixin/wuye/index.html?state=123#/";
+             location.href=vm.basePageUrl+"wuye/index.html?state=123#/";
         }
 
         
          
        },
        goback() {
-           location.href="http://wuye.gm4life.cn/wangdu/weixin/wuye/index.html?state=123#/";
+           location.href=vm.basePageUrl+"wuye/index.html?state=123#/";
        }
 
    },
