@@ -44,13 +44,6 @@
 
             <!-- 发票 -->
             <form  class="invoice">
-                <div class="form-row">
-					是否需要发票:&nbsp;&nbsp;
-					 <input  type="radio" id="yes" value="yes" v-model="needInvoice">
-  					 <label for="yes" class="ty-label">是</label>
-					 <input type="radio" id="no" value="no" v-model="needInvoice">
-  					 <label for="no" class="ty-label">否</label>
-				</div>
                 <div v-if="needInvoice == 'yes'" class="form-row">
 					申请发票类型:&nbsp;&nbsp;
 					 <input  type="radio" id="person" value="01" v-model="invoice_title_type">
