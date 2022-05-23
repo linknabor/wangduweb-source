@@ -43,7 +43,7 @@
 			</div>
 
             <!-- 发票 -->
-            <form  class="invoice">
+            <form  class="invoice" v-show="show_invoice=='1'">
                 <div v-if="needInvoice == 'yes'" class="form-row">
 					申请发票类型:&nbsp;&nbsp;
 					 <input  type="radio" id="person" value="01" v-model="invoice_title_type">
@@ -63,7 +63,7 @@
                 <h4 class="qufapiao" v-show="show_invoice_flag==0">支付后请前往物业管理处领取发票</h4>
 				<h4 class="qufapiao" v-show="show_invoice_flag==1">申请的电子发票预计在3个工作日内通过短信发送至您手机上,请注意查收</h4>
             </form>
-			<div class="card fs15 item" >
+			<div class="card fs15 item" v-show="bindhouse">
 				<div class="ov fs13 " >
 					<span  style="padding:9px 5px 5px 5px; float:left;">是否自动绑定为该房屋的业主：</span>
 					<div class="ov" style="padding:0px 5px 5px 0px;">
@@ -79,8 +79,11 @@
 			</div>
             <!-- 支付按钮 -->
 			<div style="height:1rem;"></div>
-			<div class="pay-btn" @click="wechatPay">立即微信支付</div>
-			<!-- <div class="pay-btn" @click="add">价格</div> -->
+			<div  class="btn-fix" v-if="selected == 'c' && is_create_qrcode == 1">
+				<div class="fl personnel" @click="personnel">工作人员收费</div>
+				<div class="fr determine" @click="wechatPay">立即微信支付</div>
+			</div>
+			<div v-else class="pay-btn" @click="wechatPay">立即微信支付</div>
         </div>    
 
         <!-- 优惠券页面 -->
@@ -128,7 +131,8 @@ export default {
             upronAmountNumber:0,////优惠券金额 数量
             mianBill:'0',//优惠的账单id
             mianAmt:0.00,
-            show_invoice_flag:'0',
+			show_invoice_flag:'0',
+			show_invoice:'',//是否显示发票
             show_com_flag:'0',//是否允许开具公司发票
             reduceAmt:'0',//减免合计
             count:0,//实际支付金额
@@ -145,7 +149,13 @@ export default {
 			invoiceType:'person',//公司或个人
 			payAddr:"",
 			bind_switch:"1",
-			tel:cookie.get('tel')
+			tel:cookie.get('tel'),
+			selected:this.$route.query.selected,
+			ruleType:'', //减免规则类型
+			reductionAmt:'',//减免金额
+			discounts:[],
+			bindhouse:true,
+			is_create_qrcode:'',//是否开启工作人员收费
 
        };
    },
@@ -161,9 +171,9 @@ export default {
 			needInvoice:function(){
 				if(this.needInvoice == 'yes'){
 					vm.invoice_title_type='01'
-					console.log('yes')
+					// console.log('yes')
 				}else{
-					console.log('no')
+					// console.log('no')
 					vm.invoice_title_type=''
 				}
 			},
@@ -171,17 +181,15 @@ export default {
 		},
    mounted() {
 	//    this.initSession4Test();
-
-		this.common.checkRegisterStatus();
-			
-       this.getBillDetail();
+	   this.common.checkRegisterStatus();
+	   this.getBillRestriction();		
 	   this.updateCouponStatus();
+	   this.getDiscount();
    },
 
-   methods: {
-
+   methods: {	   
        	initSession4Test(){
-            let url = 'http://wuye.gm4life.cn/wangdu/wechat/hexie/wechat/initSession4Test/105';
+			let url = 'initSession4Test/18079';
                 vm.receiveData.getData(vm,url,'Data',function(){
             });
         },
@@ -198,13 +206,27 @@ export default {
 			  }
 			  let url = `${paths[0]}#${paths[1]}`
 			  if (window.location.href !== url) {
-			  	console.log(url);
 			    window.location.href = url
 			  }
 			},
+		getBillRestriction(){
+			let url = "checkBillRestriction";
+           let params={
+					billId :vm.routeParams.billIds,
+	  				stmtId :vm.routeParams.stmtId
+	  			}
+		   vm.receiveData.getData(vm,url,'data',function(){
+			   	if(vm.data.success) {
+       				vm.getBillDetail();
+				}else {
+					alert(vm.data.message==null?"获取数据失败！":vm.data.message);
+					return;
+				}
+		   },params)
+		},	
        //获取账单
        getBillDetail() {
-           let url = "http://wuye.gm4life.cn/wangdu/wechat/hexie/wechat/getBillDetail";
+		   let url = "getBillDetail";
            let params={
 	  				billId :vm.routeParams.billIds,
 	  				stmtId :vm.routeParams.stmtId
@@ -213,8 +235,16 @@ export default {
 			//    console.log(vm.data)
                if(vm.data.result !== null) {
                     vm.show_com_flag=vm.data.result.show_com_flag;
-                    vm.show_invoice_flag = vm.data.result.show_invoice_flag;
-                    let useDate = vm.data.result.fee_data[0];
+					vm.show_invoice_flag = vm.data.result.show_invoice_flag;
+					vm.is_create_qrcode = vm.data.result.is_create_qrcode;
+					if(vm.is_create_qrcode == 0 || vm.selected != 'c') {
+							vm.show_invoice=vm.data.result.show_invoice;
+							if(vm.show_invoice=='1') {
+								vm.invoice_title_type='01';
+							}	
+					}
+					let useDate = vm.data.result.fee_data[0];
+					
                     if(vm.data.result.mianBill) {
                         vm.mianBill = vm.data.result.mianBill;
                     }
@@ -231,23 +261,33 @@ export default {
 					  vm.feeList = useDate.fee_name;
 					//地址
 					 vm.payAddr= useDate.cell_addr;
-					 
+					
+					vm.bindhouses();
                }
 
 
             },params)
-       },
+	   },
+	   	//判断是否显示绑定房子
+		bindhouses() {
+			if(vm.selected == 'c' && vm.is_create_qrcode == 1) {
+				vm.bindhouse = false;
+			}else if (vm.selected == 'c' && vm.is_create_qrcode == 0) {
+				vm.bindhouse = true;
+			}else if(vm.selected != 'c' && vm.is_create_qrcode != 1) {
+				vm.bindhouse = true;
+			}else if (vm.selected != 'c' && vm.is_create_qrcode == 0) {
+				vm.bindhouse = true;
+			}
+		},
        //获取优惠券
        updateCouponStatus() {
-           let url2 = 'http://wuye.gm4life.cn/wangdu/wechat/hexie/wechat/updateCouponStatus';
-	  		vm.receiveData.getData(vm,url2,'temp',function(){	  			
 	  		    //更新后 获取优惠劵
-	  			let url3 = 'http://wuye.gm4life.cn/wangdu/wechat/hexie/wechat/getCouponsPayWuYe';
+				let url3 = 'getCouponsPayWuYe';
 	  			vm.receiveData.getData(vm,url3,'uptonDatas',function(){
 	  				vm.uptonData = vm.uptonDatas.result;
 	  				vm.uptonNumber = vm.uptonDatas.result.length;
 	  			})
-	  		});
        },
     
         //点击优惠券
@@ -320,9 +360,42 @@ export default {
 				vm.reduceAmt = parseFloat(vm.routeParams.totalPrice) - parseFloat(vm.count);
 				vm.reduceAmt = vm.reduceAmt.toFixed(2);//减少的钱
 					
-       },
-       wechatPay() {
+	   },
 
+	           //物业优惠
+        getDiscount(){
+            let url = "/getDiscounts";
+            let data = {
+                billId:vm.routeParams.billIds,
+                stmtId:vm.routeParams.stmtId,
+                payType:'0',  //0微信,1卡
+                payFeeType:'01', //01管理费，02停车费
+                regionName:'0', //定位地区
+            }
+            vm.axios.post(
+            url,
+            data,
+            ).then(function(e) {
+                var res = JSON.parse(e.data);
+                if(res.success){
+					vm.discounts = res.result.reduction;//数组
+					if(vm.discounts == null){
+						vm.ruleType = '0';
+						vm.reductionAmt = '0';
+						// console.log()
+						
+                    }
+                }else {
+                    alert(res.message)
+                }
+            } )
+		},
+		
+	//    工作人员收费
+	   personnel() {
+	 		vm.$router.push({path:'/personnel',query:{'billId':vm.routeParams.billIds,'stmtId':vm.routeParams.stmtId}})
+	   },
+       wechatPay() {
            if(this.needInvoice=="yes"){
 					if(this.invoice_title_type=="02"){
 						if(this.invoice_title==""){
@@ -336,9 +409,28 @@ export default {
 					}
 				};
                 $('.box-bg').css("display",'block');
-            let url = "http://wuye.gm4life.cn/wangdu/wechat/hexie/wechat/getPrePayInfo?billId="+vm.routeParams.billIds+"&stmtId="+vm.routeParams.stmtId+"&couponUnit="+vm.upronAmountNumber+"&couponNum=1&couponId="+vm.couponId+"&mianBill="+vm.mianBill+"&mianAmt="+vm.mianAmt+"&reduceAmt="+vm.reduceAmt+"&invoice_title_type="+this.invoice_title_type+"&credit_code="+this.credit_code+"&invoice_title="+this.invoice_title;
-            
-            this.axios.post(url,{},).then((res) => {
+			let url = 'getPrePayInfo';
+			var list ={};
+			list.billId=vm.routeParams.billIds;
+			list.stmtId=vm.routeParams.stmtId;
+			list.couponUnit=vm.upronAmountNumber;
+			list.couponNum='1';
+			list.couponId=vm.couponId;
+			list.invoice_title_type=vm.invoice_title_type;
+			list.credit_code=vm.credit_code;
+			list.invoice_title=vm.invoice_title;
+			list.reduceAmt=vm.reduceAmt;
+			list.ruleType = vm.ruleType; //减免规则类型
+			list.reductionAmt = vm.reductionAmt;//减免金额
+			list.regionname = '0';
+			list.payFeeType= "01";
+			list.payType= "0";
+
+			//获取不需要
+			list.mianBill=vm.mianBill;
+			list.mianAmt=vm.mianAmt;
+			
+            this.axios.post(url,list,).then((res) => {
 				let wd = JSON.parse(res.data);
 				
 			
@@ -359,12 +451,13 @@ export default {
 						 	"appId":wd.result.appid,
 			                "timestamp":wd.result.timestamp,
 			                "nonceStr":wd.result.noncestr,
-			                "package":wd.result.packageValue,
+			                "package":wd.result.package,
 			                "signType":wd.result.signtype,
                             "paySign":wd.result.paysign,
                             
                               success: function (res) {
-                                      let reqUrl = "http://wuye.gm4life.cn/wangdu/wechat/hexie/wechat/noticePayed?billId="+vm.routeParams.billIds+"&stmtId="+vm.routeParams.stmtId+"&tradeWaterId="+wd.result.trade_water_id+"&packageId="+wd.result.packageId+"&feePrice="+vm.routeParams.totalPrice+"&bind_switch="+vm.bind_switch;
+									//   let reqUrl = "http://wuye.gm4life.cn/wangdu/wechat/hexie/wechat/noticePayed?billId="+vm.routeParams.billIds+"&stmtId="+vm.routeParams.stmtId+"&tradeWaterId="+wd.result.trade_water_id+"&packageId="+wd.result.packageId+"&feePrice="+vm.routeParams.totalPrice+"&bind_switch="+vm.bind_switch;
+									 let reqUrl = "noticePayed?billId="+vm.routeParams.billIds+"&stmtId="+vm.routeParams.stmtId+"&tradeWaterId="+wd.result.trade_water_id+"&packageId="+wd.result.packageId+"&feePrice="+vm.routeParams.totalPrice+"&bind_switch="+vm.bind_switch;
                                       if(vm.uptonAmount != "未使用"){
                                             reqUrl += "&couponId="+vm.couponId;
                                         }
@@ -641,15 +734,34 @@ export default {
 	.pay-btn{
 		background-color: #D01120;
 		position: fixed;
-		left: 0;
-		bottom: 0;
+		left: 4%;
+		right: 4%;
 		bottom: 0;
 		z-index: 3;
-		width: 100%;
+		width: 92%;
 		height: 0.9rem;
 		text-align: center;
 		color: #fff;
 		line-height: 0.9rem;
+		font-size: 0.3rem;
+	}
+	.btn-fix {
+		position: fixed;
+		left: 4%;
+		right: 4%;
+		bottom: 0;
+		z-index: 3;
+		width: 92%;
+	}
+	.personnel,.determine {
+		height: 0.9rem;
+		line-height: 0.9rem;
+		text-align: center;
+		color: #fff;
+		width:3rem;
+		border-radius: 5px;
+		background-color: #D01120;
+		font-size:0.3rem;
 	}
     /* 发票 */
     .invoice{
@@ -657,19 +769,19 @@ export default {
 	padding-top: 0.5rem;
 	margin-top: 0.6rem;
 	padding-left: 1rem;
-}
-.invoice .ty-label{
-	padding: 0 0.2rem;
-}
-.form-row{
-	padding-bottom: 0.4rem;
-}
-.t-label{padding: 20px;font-size: 14px;}
-.t-input{margin-left: 8px;border: none;font-size: 12px;outline: none;}
-.mint-cell-wrapper{
-	border:none;
-}
-.qufapiao{color: red;margin-bottom: .2rem;}
-.box-bg {width: 100%;opacity: .5;height: 100%;position: fixed;
-	    background-color: #666;top: 0;left: 0;z-index: 100;display: none}
+	}
+	.invoice .ty-label{
+		padding: 0 0.2rem;
+	}
+	.form-row{
+		padding-bottom: 0.4rem;
+	}
+	.t-label{padding: 20px;font-size: 14px;}
+	.t-input{margin-left: 8px;border: none;font-size: 12px;outline: none;}
+	.mint-cell-wrapper{
+		border:none;
+	}
+	.qufapiao{color: red;margin-bottom: .2rem;}
+	.box-bg {width: 100%;opacity: .5;height: 100%;position: fixed;
+			background-color: #666;top: 0;left: 0;z-index: 100;display: none}
 </style>

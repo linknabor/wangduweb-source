@@ -2,20 +2,38 @@ import wx from 'weixin-js-sdk';
 var MasterConfig = function() {
     //开发环境
     var t = {
-        baseUrl: "http://wuye.gm4life.cn/wangdu/wechat/hexie/wechat/",
-        basePageUrl:"http://wuye.gm4life.cn/wangdu/weixin/",
-        payPageFolder:"http://wuye.gm4life.cn/pay/",
+        baseUrl: /127|test|localhost/.test(location.origin)?'https://test.e-shequ.com/wangdu/wechat/hexie/wechat/':
+        /uat/.test(location.origin)?'https://uat.e-shequ.com/wangdu/wechat/hexie/wechat/':
+        'http://wuye.gm4life.cn/wangdu/wechat/hexie/wechat/',
+        
+        basePageUrl:/127|test/.test(location.origin)?'https://test.e-shequ.com/wangdu/weixin/':
+        /uat/.test(location.origin)?'https://uat.e-shequ.com/wangdu/weixin/':
+        'http://wuye.gm4life.cn/wangdu/weixin/',
+
+        basePageUrlpay:/127|test/.test(location.origin)?'https://test.e-shequ.com/wangdu/weixin/pay/':
+        /uat/.test(location.origin)?'https://uat.e-shequ.com/hexie/weixin/pay/':
+        'http://wuye.gm4life.cn/wangdu/weixin/pay/',
+
+        payPageFolder:/127|test/.test(location.origin)?'https://test.e-shequ.com/pay/':
+        /uat/.test(location.origin)?'https://uat.e-shequ.com/pay/':
+        'http://wuye.gm4life.cn/pay/',
+
+        appId: /127|test/.test(location.origin)?'wx95f46f41ca5e570e':
+        /uat/.test(location.origin)?'wx9ffe0a2b5a64a285':
+        'wxf59c6eb8ecb825ff',
+
+        bindAppId: /127|test/.test(location.origin)?'wx95f46f41ca5e570e':
+        /uat/.test(location.origin)?'wx9ffe0a2b5a64a285':
+        'wxf59c6eb8ecb825ff',
+
         payPageSuffix:"wangdu",
         
-        appId: "wxf59c6eb8ecb825ff",
-        oauthUrl: "http://open.weixin.qq.com/connect/oauth2/authorize?",
+        oauthUrl: "http://open.weixin.qq.com/connect/oauth2/authorize?",//非静默授权和静默授权
         oauthUrlPostFix:"&response_type=code&scope=snsapi_userinfo&state=123#wechat_redirect",
         oauthUrlPostSilent:"&response_type=code&scope=snsapi_base&state=123#wechat_redirect",
-        bindAppId:"wxf59c6eb8ecb825ff",
-        
+          
         baidu_map_key:"RUWUgrEEF5VjoaWsstMMZwOD",
         shop_name: "光明",
-
         is_debug:true
     },
 
@@ -157,7 +175,7 @@ function isWeChatBrowser() {
 function getUrlParam(name) {
     var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
     var r = window.location.search.substr(1).match(reg);  //匹配目标参数
-    if (r != null) return unescape(r[2]); return null; //返回参数值
+    if (r != null) return unescape(r[2]); return ''; //返回参数值
 }
 
 function initShareConfig(title,link,img,desc){
@@ -429,4 +447,4 @@ checkBindAndBind();
 checkCodeAndLogin();
 common.setTitle(MasterConfig.C("shop_name") + "悦社区");
 
-export default common;
+export  {common,MasterConfig,getUrlParam,reLogin};

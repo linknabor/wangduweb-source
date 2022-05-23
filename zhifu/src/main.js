@@ -18,8 +18,14 @@ import './assets/js/rem.js'
 
 Vue.prototype.HOST = '/api' //代理
 
-import common from './common.js'
+import {common,MasterConfig,getUrlParam,reLogin} from './common.js'
+
+Vue.prototype.reLogin = reLogin;
 Vue.prototype.common = common;
+Vue.prototype.getUrlParam = getUrlParam;
+Vue.prototype.baseUrl = MasterConfig.C('baseUrl');
+Vue.prototype.basePageUrl = MasterConfig.C('basePageUrl');
+Vue.prototype.basePageUrlpay = MasterConfig.C('basePageUrlpay');
 
 import cookie from 'js-cookie'
 import receiveData from './receiveData.js'
@@ -35,9 +41,11 @@ var axiosInstance = axios.create({
         //   'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8',
         'Content-Type':"application/json",
         'Accept': 'application/json',
+        // 'Content-Type':'application/json;charset=UTF-8'
     },
     
     // baseURL: 'http://wuye.gm4life.cn/wangdu/wechat/hexie/wechat/',
+    baseURL:Vue.prototype.baseUrl,
     withCredentials:true,
     transformResponse: [function (data) {//数据转换
       return data;
