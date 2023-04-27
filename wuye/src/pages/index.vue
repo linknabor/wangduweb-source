@@ -132,7 +132,7 @@
 			<a href="https://www.gm4life.cn/guangming/weixin/home/index.html?state=123#/">
 				<div class="nav-b5-relative">
 					<img src="../assets/imgs/fuwu.png"/>
-					<span>悦服务</span>
+					<span>房管家</span>
 				</div>
 			</a>
 		</dd>
@@ -140,7 +140,7 @@
 			<a href="https://www.gm4life.cn/yueshop/index.php?s=/wap">
 				<div class="nav-b5-relative">
 					<img src="../assets/imgs/shangc.png"/>
-					<span>悦商城</span>
+					<span>菜管家</span>
 				</div>
 			</a>
 		</dd>
@@ -148,7 +148,7 @@
 			<a href="http://wuye.gm4life.cn/wangdu/weixin/wuye/index.html?state=123#/">
 				<div class="nav-b5-relative">
 					<img src="../assets/imgs/shequ-check.png"/>
-					<span>悦社区</span>
+					<span>物管家</span>
 				</div>
 			</a>
 		</dd>
@@ -156,7 +156,7 @@
 			<a href="https://www.gm4life.cn/yueshop/wap/member.html">
 				<div class="nav-b5-relative">
 					<img src="../assets/imgs/yez.png"/>
-					<span>用户中心</span>
+					<span>我的</span>
 				</div>
 			</a>
 		</dd>
