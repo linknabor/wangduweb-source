@@ -147,8 +147,8 @@
     	<dd id="buttom_classify">
 			<a href="http://wuye.gm4life.cn/wangdu/weixin/wuye/index.html?state=123#/">
 				<div class="nav-b5-relative">
-					<img src="../assets/imgs/shequ-check.png"/>
-					<span>物管家</span>
+					<img src="../assets/imgs/shequ.png"/>
+					<span style="color:red">物管家</span>
 				</div>
 			</a>
 		</dd>
